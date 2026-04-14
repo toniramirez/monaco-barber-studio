@@ -1,0 +1,189 @@
+.heroSection {
+  position: relative;
+  height: 100dvh;
+  min-height: 600px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: linear-gradient(165deg, #1a1a1a 0%, #0d0d0d 40%, #050505 100%);
+}
+
+/* Subtle radial glow behind content */
+.heroSection::before {
+  content: "";
+  position: absolute;
+  top: 35%;
+  left: 50%;
+  width: 600px;
+  height: 400px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 255, 255, 0.025) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Subtle noise texture */
+.noiseOverlay {
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.03;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Logo + description container */
+.container {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  max-width: 680px;
+  padding: 0 2rem;
+}
+
+.heroLogo {
+  width: min(58vw, 560px);
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 0 60px rgba(255, 255, 255, 0.04));
+}
+
+/* Thin decorative line separator */
+.container::after {
+  content: "";
+  display: none; /* Hidden by default, can be enabled */
+}
+
+.heroDescription {
+  text-align: center;
+  font-size: 0.9rem;
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.48);
+  font-weight: 300;
+  letter-spacing: 0.02em;
+  max-width: 480px;
+}
+
+/* ── Scroll indicator — centered ── */
+.scrollIndicator {
+  position: absolute;
+  bottom: 2.5rem;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  z-index: 10;
+}
+
+.scrollText {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  color: rgba(255, 255, 255, 0.25);
+  font-weight: 500;
+}
+
+.scrollLine {
+  width: 1px;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.06);
+  position: relative;
+  overflow: hidden;
+  border-radius: 1px;
+}
+
+.scrollDot {
+  width: 3px;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 50%;
+  position: absolute;
+  left: -1px;
+  top: -3px;
+  animation: scrollTravel 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes scrollTravel {
+  0% {
+    top: -3px;
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    top: 44px;
+    opacity: 0;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   Mobile — ≤ 768px
+   ═══════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .heroSection {
+    min-height: 100dvh;
+    padding: 0 0 3rem;
+  }
+
+  .heroSection::before {
+    width: 320px;
+    height: 250px;
+    top: 32%;
+  }
+
+  .container {
+    gap: 1.6rem;
+    padding: 0 1.5rem;
+  }
+
+  .heroLogo {
+    width: min(72vw, 320px);
+  }
+
+  .heroDescription {
+    font-size: 0.8rem;
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.42);
+    max-width: 340px;
+  }
+
+  .scrollIndicator {
+    bottom: 1.5rem;
+  }
+
+  .scrollText {
+    font-size: 0.55rem;
+  }
+
+  .scrollLine {
+    height: 32px;
+  }
+}
+
+/* Extra small phones */
+@media (max-width: 380px) {
+  .heroLogo {
+    width: min(76vw, 280px);
+  }
+
+  .heroDescription {
+    font-size: 0.75rem;
+    max-width: 300px;
+  }
+}

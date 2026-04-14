@@ -1,0 +1,196 @@
+.footer {
+  background: var(--graphite);
+  padding: 5rem 2rem 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  position: relative;
+}
+
+@media (max-width: 480px) {
+  .footer {
+    padding: 3rem 1.25rem 1.5rem;
+  }
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
+}
+
+
+
+/* Bottom Section */
+.bottomSection {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 3rem;
+}
+
+@media (min-width: 768px) {
+  .bottomSection {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
+
+.brandInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.footerLogo {
+  border-radius: 50%;
+}
+
+.sinceBadge {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.directory {
+  display: flex;
+  gap: 4rem;
+}
+
+.dirCol h4 {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  color: #fff;
+}
+
+.dirCol ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.dirCol li {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.copyright {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+/* Sticky WhatsApp Widget — Hidden by default, visible on scroll */
+.stickyWsp {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: rgba(20, 20, 20, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #fff;
+  padding: 0.75rem 1.4rem 0.75rem 1rem;
+  border-radius: 999px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  z-index: 100;
+  cursor: pointer;
+  text-decoration: none;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(20px);
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+              background 0.35s ease,
+              border-color 0.35s ease,
+              box-shadow 0.35s ease;
+}
+
+.wspVisible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.stickyWsp:hover {
+  background: rgba(30, 30, 30, 0.95);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  transform: translateY(-3px);
+}
+
+.wspIconWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #25d366;
+  flex-shrink: 0;
+  box-shadow: 0 0 12px rgba(37, 211, 102, 0.35);
+  transition: box-shadow 0.3s ease;
+}
+
+.stickyWsp:hover .wspIconWrap {
+  box-shadow: 0 0 20px rgba(37, 211, 102, 0.55);
+}
+
+.wspLabel {
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Pulse ring */
+.wspPulse {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  border: 1px solid rgba(37, 211, 102, 0.25);
+  transform: translate(-50%, -50%);
+  animation: wspPulseAnim 2.5s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes wspPulseAnim {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.35);
+    opacity: 0;
+  }
+}
+
+/* Mobile: hide label, show icon only */
+@media (max-width: 600px) {
+  .stickyWsp {
+    padding: 0.55rem;
+    bottom: 1.25rem;
+    right: 1.25rem;
+  }
+  .wspLabel {
+    display: none;
+  }
+  .wspIconWrap {
+    width: 44px;
+    height: 44px;
+  }
+  .directory {
+    gap: 2.5rem;
+  }
+}
+
