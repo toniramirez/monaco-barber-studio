@@ -36,19 +36,7 @@ export default function Hero() {
           priority
         />
 
-        <motion.p
-          className={styles.heroDescription}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6, duration: 1, ease: [0.16, 1, 0.3, 1] }}
-        >
-          Desde 2019, nos consolidamos como un emblema de la barbería en Córdoba
-          Capital. Nos diferenciamos por ofrecer cortes con asesoría
-          personalizada y una atención ágil diseñada para el ritmo de hoy.
-          <br /><br />
-          Somos un espacio apto para todo público, donde la experiencia y el
-          estilo se encuentran para potenciar tu imagen.
-        </motion.p>
+
       </motion.div>
 
       {/* Scroll indicator — "Deslizar" */}

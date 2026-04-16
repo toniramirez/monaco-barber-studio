@@ -46,32 +46,16 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2rem;
-  max-width: 680px;
+  gap: 0;
+  max-width: 850px;
   padding: 0 2rem;
 }
 
 .heroLogo {
-  width: min(58vw, 560px);
+  width: min(90vw, 950px);
   height: auto;
   object-fit: contain;
   filter: drop-shadow(0 0 60px rgba(255, 255, 255, 0.04));
-}
-
-/* Thin decorative line separator */
-.container::after {
-  content: "";
-  display: none; /* Hidden by default, can be enabled */
-}
-
-.heroDescription {
-  text-align: center;
-  font-size: 0.9rem;
-  line-height: 1.8;
-  color: rgba(255, 255, 255, 0.48);
-  font-weight: 300;
-  letter-spacing: 0.02em;
-  max-width: 480px;
 }
 
 /* ── Scroll indicator — centered ── */
@@ -148,19 +132,12 @@
   }
 
   .container {
-    gap: 1.6rem;
+    gap: 1.2rem;
     padding: 0 1.5rem;
   }
 
   .heroLogo {
-    width: min(72vw, 320px);
-  }
-
-  .heroDescription {
-    font-size: 0.8rem;
-    line-height: 1.7;
-    color: rgba(255, 255, 255, 0.42);
-    max-width: 340px;
+    width: min(85vw, 380px);
   }
 
   .scrollIndicator {
@@ -179,11 +156,6 @@
 /* Extra small phones */
 @media (max-width: 380px) {
   .heroLogo {
-    width: min(76vw, 280px);
-  }
-
-  .heroDescription {
-    font-size: 0.75rem;
-    max-width: 300px;
+    width: min(82vw, 300px);
   }
 }
