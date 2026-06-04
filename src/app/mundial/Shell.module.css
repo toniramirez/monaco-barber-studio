@@ -1,0 +1,518 @@
+/* ════════════════════════════════════════════════════════════════════════
+   Prode Mundial 2026 — SHELL / DESIGN SYSTEM
+   App-shell móvil (barra inferior) + tokens de marca + primitivos compartidos.
+   Es el ancla de cohesión: todas las pantallas importan ESTE archivo para
+   botones, inputs, cards, pills, títulos y animaciones. Cada pantalla añade
+   sólo su layout propio en su módulo. NO dupliques primitivos acá.
+   Estética: estadio de noche, celeste y oro sobre graphite. Premium + festivo.
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* ───────────────────────── Shell + tokens ───────────────────────── */
+.shell {
+  /* Tokens de marca Mundial (heredan por var() a todas las pantallas anidadas) */
+  --gold: #e9c46a;
+  --gold-deep: #d4af37;
+  --gold-soft: rgba(233, 196, 106, 0.14);
+  --celeste: #79c0f2;
+  --celeste-deep: #3f93cf;
+  --celeste-soft: rgba(121, 192, 242, 0.14);
+  --pitch: #2faa5a;
+  --pitch-soft: rgba(47, 170, 90, 0.1);
+  --card: rgba(40, 42, 46, 0.66);
+  --card-border: rgba(255, 255, 255, 0.08);
+
+  /* alto de la barra inferior (lo consumen .content y pantallas con CTA fijo) */
+  --tabbar-h: 64px;
+
+  position: relative;
+  min-height: 100svh;
+  color: var(--text-primary);
+  overflow-x: hidden;
+  background:
+    radial-gradient(1100px 540px at 50% -14%, rgba(233, 196, 106, 0.13), transparent 60%),
+    radial-gradient(820px 520px at 86% 2%, rgba(121, 192, 242, 0.12), transparent 56%),
+    radial-gradient(720px 560px at 10% 6%, rgba(121, 192, 242, 0.06), transparent 56%),
+    linear-gradient(180deg, #1c2024 0%, #191919 38%, var(--graphite) 100%);
+  background-attachment: fixed;
+}
+
+/* Carril central: todo el contenido vive acá, ancho cómodo de pulgar. */
+.content {
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 1rem 1.05rem
+    calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px) + 1.6rem);
+}
+
+/* ───────────────────────── Top bar (slim) ───────────────────────── */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.7rem 1.05rem calc(0.7rem);
+  padding-top: calc(0.7rem + env(safe-area-inset-top, 0px));
+  background: rgba(18, 18, 18, 0.66);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--card-border);
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-weight: 900;
+  font-size: 0.95rem;
+  letter-spacing: 0.05em;
+}
+.brandLogo { border-radius: 7px; }
+.brandBadge {
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: var(--gold);
+  border: 1px solid var(--gold-soft);
+  padding: 0.18rem 0.46rem;
+  border-radius: var(--radius-pill);
+  background: var(--gold-soft);
+}
+.topbarLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+.topbarLink:hover { color: var(--text-primary); }
+.liveDot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--pitch);
+  box-shadow: 0 0 0 0 rgba(47, 170, 90, 0.6);
+  animation: pulse 2s ease-out infinite;
+}
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(47, 170, 90, 0.55); }
+  70% { box-shadow: 0 0 0 8px rgba(47, 170, 90, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(47, 170, 90, 0); }
+}
+
+/* ───────────────────────── Bottom tab bar ───────────────────────── */
+.tabbar {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  z-index: 60;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 0.15rem;
+  height: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px));
+  padding: 0 0.4rem env(safe-area-inset-bottom, 0px);
+  background: rgba(16, 16, 17, 0.82);
+  backdrop-filter: blur(18px) saturate(1.2);
+  -webkit-backdrop-filter: blur(18px) saturate(1.2);
+  border-top: 1px solid var(--card-border);
+}
+.tab {
+  position: relative;
+  flex: 1 1 0;
+  max-width: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.18rem;
+  padding: 0.5rem 0.2rem 0.4rem;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.18s ease, transform 0.12s ease;
+}
+.tab:active { transform: scale(0.92); }
+.tabIcon {
+  display: grid;
+  place-items: center;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.tabLabel {
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.tabActive { color: var(--gold); }
+.tabActive .tabIcon {
+  transform: translateY(-1px);
+  filter: drop-shadow(0 0 8px rgba(233, 196, 106, 0.55));
+}
+/* indicador superior del tab activo */
+.tabActive::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 26px; height: 3px;
+  border-radius: 0 0 3px 3px;
+  background: linear-gradient(90deg, var(--celeste), var(--gold));
+  box-shadow: 0 0 10px rgba(233, 196, 106, 0.5);
+}
+
+/* ───────────────────────── Primitivos: tipografía ───────────────────────── */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  padding: 0.3rem 0.75rem;
+  border-radius: var(--radius-pill);
+  background: var(--gold-soft);
+  border: 1px solid var(--gold-soft);
+}
+.sectionTitle {
+  font-size: clamp(1.45rem, 6vw, 1.8rem);
+  font-weight: 900;
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+}
+.em { color: var(--gold); }
+.sectionSub {
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+  line-height: 1.45;
+  margin-top: 0.35rem;
+}
+
+/* ───────────────────────── Primitivos: cards ───────────────────────── */
+.card {
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+/* cinta superior celeste/oro/celeste (bandera) — opcional vía .cardTopline */
+.cardTopline::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  border-radius: 20px 20px 0 0;
+  background: linear-gradient(90deg, var(--celeste), var(--gold), var(--celeste));
+}
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.34rem;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--card-border);
+  padding: 0.3rem 0.7rem;
+  border-radius: var(--radius-pill);
+}
+.pillGold { color: var(--gold); background: var(--gold-soft); border-color: rgba(233, 196, 106, 0.3); }
+.pillCeleste { color: var(--celeste); background: var(--celeste-soft); border-color: rgba(121, 192, 242, 0.32); }
+
+/* ───────────────────────── Primitivos: forms ───────────────────────── */
+.field { margin-bottom: 0.85rem; text-align: left; }
+.label {
+  display: block;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--text-secondary);
+  margin-bottom: 0.38rem;
+}
+.input {
+  width: 100%;
+  padding: 0.88rem 1rem;
+  font-size: 1rem;
+  color: var(--text-primary);
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.input::placeholder { color: rgba(170, 170, 170, 0.55); }
+.input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-soft); }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
+.consent {
+  display: flex;
+  gap: 0.55rem;
+  align-items: flex-start;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin: 0.5rem 0 0.2rem;
+  text-align: left;
+  line-height: 1.4;
+}
+.consent input { margin-top: 0.15rem; accent-color: var(--gold); flex-shrink: 0; }
+
+/* ───────────────────────── Primitivos: botones ───────────────────────── */
+.btnPrimary {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem 1.25rem;
+  font-size: 1.02rem;
+  font-weight: 900;
+  color: #1a1a1a;
+  border: none;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  background: linear-gradient(135deg, #f6dd92 0%, var(--gold) 45%, var(--gold-deep) 100%);
+  box-shadow: 0 12px 30px rgba(233, 196, 106, 0.28);
+  transition: transform 0.15s ease, box-shadow 0.3s ease, opacity 0.2s ease;
+}
+.btnPrimary::before {
+  content: "";
+  position: absolute;
+  top: 0; left: -120%;
+  width: 55%; height: 100%;
+  background: linear-gradient(110deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  transform: skewX(-18deg);
+  animation: ctaSweep 4.2s ease-in-out 1.5s infinite;
+}
+.btnPrimary:hover { transform: translateY(-1px); box-shadow: 0 16px 38px rgba(233, 196, 106, 0.4); }
+.btnPrimary:active { transform: scale(0.98); }
+.btnPrimary:disabled { opacity: 0.55; cursor: not-allowed; transform: none; box-shadow: none; }
+.btnPrimary:disabled::before { display: none; }
+
+.btnGhost {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.85rem 1rem;
+  font-size: 0.94rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+.btnGhost:hover { border-color: var(--celeste); color: var(--celeste); }
+.btnGhost:active { transform: scale(0.98); }
+.btnGhost:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ───────────────────────── Primitivos: mensajes ───────────────────────── */
+.error { color: #ff7a7a; font-size: 0.85rem; margin-top: 0.6rem; text-align: center; }
+.helper { color: var(--text-secondary); font-size: 0.8rem; margin-top: 0.5rem; line-height: 1.45; }
+.devCode {
+  margin-top: 0.7rem;
+  font-size: 0.8rem;
+  color: var(--gold);
+  background: var(--gold-soft);
+  padding: 0.55rem 0.8rem;
+  border-radius: 12px;
+  text-align: center;
+  border: 1px solid rgba(233, 196, 106, 0.28);
+}
+.noticeGood {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  background: rgba(47, 170, 90, 0.13);
+  border: 1px solid rgba(47, 170, 90, 0.4);
+  border-radius: 14px;
+  padding: 0.85rem 1rem;
+  text-align: center;
+}
+.noticeGood svg { color: var(--live-green); flex-shrink: 0; }
+
+/* ───────────────────────── Empty / gate state ───────────────────────── */
+.gate {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.7rem;
+  padding: 2.6rem 1.4rem;
+}
+.gateIcon { color: var(--gold); filter: drop-shadow(0 0 14px rgba(233, 196, 106, 0.45)); }
+
+/* ───────────────────────── A11y ───────────────────────── */
+.srOnly {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ═══════════════════════ Marcador / Countdown ═══════════════════════ */
+/* (consumido por Countdown.tsx) */
+.scoreboard { display: inline-flex; align-items: flex-start; gap: 0.45rem; }
+.sbSeg { display: flex; flex-direction: column; align-items: center; gap: 0.35rem; }
+.sbBox {
+  position: relative;
+  min-width: 62px;
+  padding: 0.6rem 0.5rem 0.5rem;
+  border-radius: 13px;
+  background: linear-gradient(180deg, #101113, #050506);
+  border: 1px solid rgba(233, 196, 106, 0.22);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    inset 0 -10px 24px rgba(0, 0, 0, 0.6),
+    0 10px 26px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+}
+.sbBox::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.04) 0 1px, transparent 1px 3px);
+  pointer-events: none;
+}
+.sbBoxAccent { border-color: rgba(121, 192, 242, 0.32); }
+.sbNum {
+  display: block;
+  font-size: clamp(1.5rem, 7vw, 2.1rem);
+  font-weight: 900;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  color: var(--gold);
+  text-shadow: 0 0 14px rgba(233, 196, 106, 0.55);
+}
+.sbBoxAccent .sbNum { color: var(--celeste); text-shadow: 0 0 14px rgba(121, 192, 242, 0.6); }
+.sbUnit { font-size: 0.58rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-secondary); }
+.kickoff {
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: var(--gold);
+  text-shadow: 0 0 20px rgba(233, 196, 106, 0.5);
+}
+
+/* ═══════════════════════ FX hero (confeti + orbes) ═══════════════════════ */
+/* (consumido por HeroFX.tsx) */
+.fx { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 1; }
+.orb { position: absolute; border-radius: 50%; filter: blur(46px); opacity: 0.5; will-change: transform; }
+.orbA {
+  width: 220px; height: 220px; left: -60px; top: 14%;
+  background: radial-gradient(circle, rgba(121, 192, 242, 0.5), transparent 70%);
+  animation: float 15s ease-in-out infinite;
+}
+.orbB {
+  width: 180px; height: 180px; right: -40px; top: 26%;
+  background: radial-gradient(circle, rgba(233, 196, 106, 0.45), transparent 70%);
+  animation: float 18s ease-in-out infinite reverse;
+}
+.orbC {
+  width: 150px; height: 150px; left: 60%; top: 4%;
+  background: radial-gradient(circle, rgba(47, 170, 90, 0.32), transparent 70%);
+  animation: float 21s ease-in-out infinite;
+}
+@keyframes float {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(18px, 26px, 0); }
+}
+.confetti {
+  position: absolute;
+  top: -14%;
+  border-radius: 2px;
+  opacity: 0;
+  will-change: transform, opacity;
+  animation-name: confettiFall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+.confettiRound { border-radius: 50%; }
+.cGold { background: linear-gradient(180deg, #f4d98a, var(--gold-deep)); }
+.cGoldDeep { background: var(--gold-deep); }
+.cCeleste { background: linear-gradient(180deg, #a6d6f8, var(--celeste-deep)); }
+.cWhite { background: #ffffff; }
+@keyframes confettiFall {
+  0% { transform: translate3d(0, -20px, 0) rotate(0deg); opacity: 0; }
+  10% { opacity: 0.9; }
+  88% { opacity: 0.85; }
+  100% { transform: translate3d(var(--drift, 20px), 760px, 0) rotate(540deg); opacity: 0; }
+}
+
+/* ═══════════════════════ Confeti de festejo (burst) ═══════════════════════ */
+.burst { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 3; }
+.burstPiece {
+  position: absolute;
+  top: 12%; left: 50%;
+  width: 9px; height: 14px;
+  border-radius: 2px;
+  opacity: 0;
+  animation: burst 1.5s ease-out forwards;
+}
+@keyframes burst {
+  0% { transform: translate(-50%, 0) rotate(0); opacity: 1; }
+  100% { transform: translate(var(--bx, 0), var(--by, 220px)) rotate(540deg); opacity: 0; }
+}
+
+/* ═══════════════════════ Animaciones compartidas ═══════════════════════ */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(16px); filter: blur(6px); }
+  to { opacity: 1; transform: none; filter: blur(0); }
+}
+@keyframes shine { to { background-position: -220% center; } }
+@keyframes ctaSweep {
+  0%, 100% { left: -120%; }
+  55%, 100% { left: 160%; }
+}
+@keyframes ctaPulse {
+  0%, 100% { box-shadow: 0 12px 30px rgba(233, 196, 106, 0.28), 0 0 0 0 rgba(233, 196, 106, 0.45); }
+  50% { box-shadow: 0 12px 30px rgba(233, 196, 106, 0.28), 0 0 0 10px rgba(233, 196, 106, 0); }
+}
+
+/* Título con shimmer dorado (hero / pantallas destacadas) */
+.shineTitle {
+  background: linear-gradient(100deg, #ffffff 18%, var(--gold) 40%, #fff6df 50%, var(--gold) 60%, #ffffff 82%);
+  background-size: 220% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shine 6.5s linear 1s infinite;
+}
+
+/* ═══════════════════════ Foco visible (teclado) ═══════════════════════ */
+.btnPrimary:focus-visible,
+.btnGhost:focus-visible,
+.tab:focus-visible,
+.topbarLink:focus-visible {
+  outline: 2px solid var(--celeste);
+  outline-offset: 2px;
+}
+
+/* ═══════════════════════ Reduced motion ═══════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  .shell { background-attachment: scroll; }
+  /* Sin movimiento: ocultamos toda la capa decorativa del hero (confeti + orbes). */
+  .fx { display: none; }
+  .orb, .liveDot, .confetti, .shineTitle { animation: none; }
+  .shineTitle { background-position: 0 center; }
+  .burst { display: none; }
+  .btnPrimary::before { display: none; }
+}

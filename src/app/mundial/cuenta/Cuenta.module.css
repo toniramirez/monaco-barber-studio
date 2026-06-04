@@ -1,0 +1,430 @@
+/* ════════════════════════════════════════════════════════════════════════
+   Mi cuenta — layout propio de la pantalla /mundial/cuenta
+   Sólo layout/estructura. Color y primitivos vienen de Shell.module.css
+   vía var() (--gold, --celeste, --card-border, etc.). NO redefinir tokens.
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* ───────────────────────── Gate (no registrado) ───────────────────────── */
+.gateIcons {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.gateActions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  width: 100%;
+  margin-top: 0.8rem;
+}
+
+/* ───────────────────────── Perfil ───────────────────────── */
+.profileCard {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 1.15rem 1.1rem;
+  margin-top: 0.9rem;
+}
+.avatar {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 1.55rem;
+  font-weight: 900;
+  color: #1a1a1a;
+  background: linear-gradient(135deg, #f6dd92 0%, var(--gold) 45%, var(--gold-deep) 100%);
+  box-shadow: 0 8px 20px rgba(233, 196, 106, 0.32);
+}
+.profileInfo {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.profileName {
+  font-size: 1.18rem;
+  font-weight: 900;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
+}
+.profileLine {
+  margin-top: 0.15rem;
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+}
+.profilePts {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1;
+}
+.ptsNum {
+  font-size: 1.85rem;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  color: var(--gold);
+  text-shadow: 0 0 16px rgba(233, 196, 106, 0.45);
+}
+.ptsLabel {
+  margin-top: 0.18rem;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+/* ───────────────────────── Bloques (cards) ───────────────────────── */
+.block {
+  padding: 1.1rem 1.1rem 1.15rem;
+  margin-top: 0.9rem;
+}
+.blockTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 1.02rem;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.6rem;
+}
+.blockTitle svg {
+  color: var(--gold);
+  flex-shrink: 0;
+}
+
+/* ───────────────────────── Mi Quiniela ───────────────────────── */
+.quinielaList {
+  list-style: none;
+  margin: 0.2rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.quinielaRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    "label answer"
+    "label pts";
+  align-items: center;
+  gap: 0.1rem 0.7rem;
+  padding: 0.6rem 0.7rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--card-border);
+}
+.qLabel {
+  grid-area: label;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  line-height: 1.3;
+}
+.qAnswer {
+  grid-area: answer;
+  justify-self: end;
+  text-align: right;
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+.qPts {
+  grid-area: pts;
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.22rem;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--gold);
+}
+.qPts svg { flex-shrink: 0; }
+
+.emptyQuiniela {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.editBtn {
+  margin-top: 0.9rem;
+}
+.lockedNote {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.9rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+.lockedNote svg { flex-shrink: 0; }
+
+/* ───────────────────────── Liga privada ───────────────────────── */
+.spaced {
+  margin-top: 0.75rem;
+}
+.joinRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.6rem;
+  align-items: center;
+  margin-top: 0.6rem;
+}
+.joinRow input {
+  margin: 0;
+}
+.joinRow button {
+  width: auto;
+  padding-left: 1.3rem;
+  padding-right: 1.3rem;
+  white-space: nowrap;
+}
+.leagueMsg {
+  color: var(--gold);
+  text-align: left;
+}
+
+/* ───────────────────────── Mis premios ───────────────────────── */
+.prizeList {
+  list-style: none;
+  margin: 0.2rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+.prizeItem {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 0.8rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--card-border);
+  overflow: hidden;
+}
+/* franja de acento izquierda según el tipo de premio */
+.prizeItem::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--gold);
+}
+.prize_welcome::before { background: var(--celeste); }
+.prize_weekly::before { background: var(--gold); }
+.prize_grand {
+  background: linear-gradient(135deg, rgba(233, 196, 106, 0.12), rgba(255, 255, 255, 0.03));
+  border-color: rgba(233, 196, 106, 0.32);
+}
+.prize_grand::before { background: linear-gradient(180deg, #f6dd92, var(--gold-deep)); width: 5px; }
+.prizeUsed { opacity: 0.55; }
+
+.prizeIcon {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  color: var(--gold);
+  background: var(--gold-soft);
+  border: 1px solid rgba(233, 196, 106, 0.22);
+}
+.prize_welcome .prizeIcon {
+  color: var(--celeste);
+  background: var(--celeste-soft);
+  border-color: rgba(121, 192, 242, 0.28);
+}
+.prizeInfo {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+.prizeName {
+  font-size: 0.92rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
+}
+.prizeValue {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--gold);
+}
+.prize_welcome .prizeValue { color: var(--celeste); }
+
+.prizeQrBtn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0.85rem;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  border: none;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  background: linear-gradient(135deg, #f6dd92 0%, var(--gold) 45%, var(--gold-deep) 100%);
+  box-shadow: 0 6px 16px rgba(233, 196, 106, 0.25);
+  transition: transform 0.12s ease, box-shadow 0.2s ease;
+}
+.prizeQrBtn:hover { transform: translateY(-1px); box-shadow: 0 9px 20px rgba(233, 196, 106, 0.36); }
+.prizeQrBtn:active { transform: scale(0.97); }
+
+.prizeStatus {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+.prizeStatusDone { color: var(--live-green, #2faa5a); }
+.prizeStatus svg { flex-shrink: 0; }
+
+/* ───────────────────────── Modal del QR ───────────────────────── */
+.qrOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.4rem;
+  background: rgba(8, 9, 11, 0.74);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: qrFade 0.22s ease;
+}
+.qrCard {
+  position: relative;
+  width: 100%;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.5rem;
+  padding: 1.5rem 1.3rem 1.4rem;
+  border-radius: 22px;
+  background: linear-gradient(180deg, #25272b, #1b1c1f);
+  border: 1px solid var(--card-border);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+  animation: qrPop 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.qrClose {
+  position: absolute;
+  top: 0.7rem;
+  right: 0.7rem;
+  display: inline-flex;
+  padding: 0.35rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.qrClose:hover { color: var(--text-primary); }
+.qrEyebrow {
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.qrTitle {
+  font-size: 1.15rem;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+}
+.qrBox {
+  margin: 0.45rem 0 0.2rem;
+  padding: 14px;
+  background: #ffffff;
+  border-radius: 16px;
+  line-height: 0;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+.qrHelp {
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  max-width: 16rem;
+}
+.qrExpiry {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+@keyframes qrFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes qrPop {
+  from { opacity: 0; transform: translateY(14px) scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .qrOverlay, .qrCard { animation: none; }
+}
+
+/* ───────────────────────── Footer ───────────────────────── */
+.footerActions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  margin-top: 1.4rem;
+}
+
+/* ───────────────────────── Skeleton (loading.tsx) ───────────────────────── */
+.skel {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.05) 25%,
+    rgba(255, 255, 255, 0.1) 37%,
+    rgba(255, 255, 255, 0.05) 63%
+  );
+  background-size: 400% 100%;
+  border-radius: 10px;
+  animation: skelShimmer 1.4s ease-in-out infinite;
+}
+.skelAvatar {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+}
+.skelLineLg { width: 60%; height: 1.1rem; margin-bottom: 0.5rem; }
+.skelLineSm { width: 40%; height: 0.8rem; }
+.skelTitle { width: 45%; height: 1.05rem; margin-bottom: 0.9rem; }
+.skelRow { width: 100%; height: 2.6rem; margin-bottom: 0.55rem; border-radius: 12px; }
+.skelBtn { width: 100%; height: 2.9rem; margin-top: 0.35rem; border-radius: 9999px; }
+
+@keyframes skelShimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: 0 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skel { animation: none; }
+}

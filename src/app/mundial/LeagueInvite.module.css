@@ -1,0 +1,59 @@
+/* Banner de invitación de liga (?liga=CODE). Tokens heredados de Shell.module.css. */
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  max-width: 560px;
+  margin: 0.7rem auto 0;
+  padding: 0.7rem 0.85rem;
+  background: var(--gold-soft);
+  border: 1px solid rgba(233, 196, 106, 0.4);
+  border-radius: 14px;
+  color: var(--text-primary);
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1.35;
+  animation: leagueIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.icon {
+  display: inline-flex;
+  color: var(--gold);
+  flex-shrink: 0;
+}
+.text {
+  flex: 1 1 auto;
+}
+.text strong {
+  color: var(--gold);
+}
+.close {
+  flex-shrink: 0;
+  display: inline-flex;
+  padding: 0.25rem;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: 8px;
+}
+.close:hover {
+  color: var(--text-primary);
+}
+
+@keyframes leagueIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .banner {
+    animation: none;
+  }
+}

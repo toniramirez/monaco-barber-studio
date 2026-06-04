@@ -1,0 +1,353 @@
+/* ════════════════════════════════════════════════════════════════════════
+   Inicio — pantalla de aterrizaje del Prode Mundial 2026.
+   Layout propio (hero, pasos, premios, legal). Los primitivos (botones, cards,
+   pills, títulos, FX) vienen de Shell.module.css; acá sólo el armado mobile-first.
+   Color SIEMPRE vía los tokens heredados (var(--gold), var(--celeste), …).
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* Ritmo vertical entre secciones del carril. */
+.hero,
+.section {
+  margin-top: 2.2rem;
+}
+.hero {
+  margin-top: 0.4rem;
+}
+
+/* ─────────────────────────── Hero ─────────────────────────── */
+.hero {
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  padding: 1.6rem 0.4rem 0.4rem;
+  /* halo de reflectores de estadio, suave detrás del FX */
+  border-radius: 24px;
+}
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: -10% -20% auto -20%;
+  height: 70%;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    conic-gradient(from 188deg at 18% -8%, transparent 0deg, rgba(121, 192, 242, 0.12) 10deg, transparent 26deg),
+    conic-gradient(from 148deg at 82% -8%, transparent 0deg, rgba(233, 196, 106, 0.14) 10deg, transparent 26deg);
+  filter: blur(2px);
+}
+
+/* El contenido va por encima del FX (z-index 1 en .fx del shell). */
+.heroInner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.heroTitle {
+  margin-top: 1rem;
+  font-size: clamp(2.1rem, 11vw, 3rem);
+  font-weight: 900;
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  overflow-wrap: break-word;
+  animation: rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.05s backwards;
+}
+
+.heroSubtitle {
+  margin-top: 0.9rem;
+  max-width: 28ch;
+  color: var(--text-secondary);
+  font-size: clamp(0.98rem, 4vw, 1.1rem);
+  line-height: 1.5;
+  animation: rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.12s backwards;
+}
+.hl {
+  color: var(--gold);
+  font-weight: 800;
+}
+.hlCeleste {
+  color: var(--celeste);
+  font-weight: 800;
+}
+
+/* Marcador / cuenta regresiva */
+.countdownWrap {
+  margin-top: 1.8rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+  animation: rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s backwards;
+}
+.countdownLabel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  max-width: 100%;
+  text-align: center;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+.countdownLabel svg {
+  color: var(--celeste);
+}
+
+/* Meta: jugadores + premio */
+.heroMeta {
+  margin-top: 1.6rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+  animation: rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.28s backwards;
+}
+.metaPill {
+  font-size: 0.74rem;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  padding: 0.45rem 0.9rem;
+}
+.metaNum {
+  font-weight: 900;
+  color: var(--text-primary);
+  font-size: 0.92rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* CTA — usa shell.btnPrimary; sólo ajustamos ancho/ritmo y pulso. */
+.heroCta {
+  margin-top: 1.6rem;
+  max-width: 340px;
+  font-size: 1.08rem;
+  animation: rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.36s backwards,
+    ctaPulse 3.2s ease-in-out 1.6s infinite;
+}
+.ctaNote {
+  margin-top: 0.7rem;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  animation: rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.44s backwards;
+}
+
+.flagStrip {
+  margin-top: 1.4rem;
+  font-size: 1.2rem;
+  letter-spacing: 0.22rem;
+  opacity: 0.85;
+  animation: rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.5s backwards;
+}
+
+/* ─────────────────────────── Cabecera de sección ─────────────────────────── */
+.sectionHead {
+  text-align: center;
+  margin-bottom: 1.4rem;
+}
+
+/* ─────────────────────────── Cómo funciona ─────────────────────────── */
+.steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+.step {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.15rem 1.15rem;
+  border-radius: var(--radius-ios);
+}
+.stepNum {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  color: #14110a;
+  font-weight: 900;
+  font-size: 1.15rem;
+  background: radial-gradient(circle at 32% 28%, #f7e4a6, var(--gold) 55%, var(--gold-deep));
+  box-shadow: 0 6px 16px rgba(233, 196, 106, 0.32),
+    inset 0 0 0 3px rgba(255, 255, 255, 0.18), inset 0 0 0 4px rgba(0, 0, 0, 0.12);
+}
+.stepIcon {
+  flex-shrink: 0;
+  color: var(--celeste);
+  margin-top: 0.55rem;
+}
+.stepBody {
+  flex: 1;
+  min-width: 0;
+}
+.stepTitle {
+  font-weight: 800;
+  font-size: 1.02rem;
+  margin: 0.1rem 0 0.25rem;
+}
+.stepText {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* ─────────────────────────── Premios ─────────────────────────── */
+.prizes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+.prize {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+  padding: 1.3rem 1.25rem;
+  border-radius: var(--radius-ios);
+  overflow: hidden;
+}
+.prizeIcon {
+  margin-bottom: 0.2rem;
+}
+.prizeIconCeleste {
+  color: var(--celeste);
+}
+.prizeIconGold {
+  color: var(--gold);
+}
+.prizeBody {
+  text-align: left;
+}
+.prizeName {
+  font-weight: 800;
+  font-size: 1.05rem;
+  margin: 0 0 0.25rem;
+}
+.prizeText {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  margin: 0;
+}
+.prizeTag {
+  margin-bottom: 0.3rem;
+}
+
+/* Gran premio — destacado, primero y brillante */
+.prizeFeatured {
+  border-color: rgba(233, 196, 106, 0.45);
+  background: linear-gradient(180deg, rgba(233, 196, 106, 0.13), var(--card) 58%);
+  box-shadow: 0 0 0 1px rgba(233, 196, 106, 0.3), 0 18px 44px rgba(0, 0, 0, 0.4),
+    0 0 44px rgba(233, 196, 106, 0.16);
+}
+.prizeFeatured::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 45%;
+  height: 100%;
+  pointer-events: none;
+  background: linear-gradient(110deg, transparent, rgba(255, 255, 255, 0.16), transparent);
+  transform: skewX(-18deg);
+  animation: ctaSweep 5s ease-in-out 1.2s infinite;
+}
+.prizeFeatured .prizeIcon {
+  color: var(--gold);
+  filter: drop-shadow(0 0 12px rgba(233, 196, 106, 0.6));
+}
+.prizeCrown {
+  display: inline-block;
+  margin-bottom: 0.35rem;
+  font-size: 0.6rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #14110a;
+  background: linear-gradient(135deg, #f6dd92, var(--gold-deep));
+  padding: 0.28rem 0.7rem;
+  border-radius: var(--radius-pill);
+  box-shadow: 0 6px 16px rgba(233, 196, 106, 0.4);
+}
+
+/* ─────────────────────────── Legal ─────────────────────────── */
+.footNote {
+  margin-top: 2.2rem;
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  line-height: 1.55;
+  text-align: center;
+  opacity: 0.72;
+}
+.footIcon {
+  vertical-align: -2px;
+  margin-right: 0.15rem;
+  color: var(--gold);
+}
+
+/* ─────────────────────────── Skeleton (loading.tsx) ─────────────────────────── */
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.skelBlock {
+  border-radius: var(--radius-ios);
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  animation: pulseSkel 1.4s ease-in-out infinite;
+}
+.skelHero {
+  height: 320px;
+}
+.skelLine {
+  height: 110px;
+}
+.skelLineSm {
+  height: 64px;
+}
+@keyframes pulseSkel {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.95;
+  }
+}
+
+/* ─────────────────────────── Foco visible (teclado) ─────────────────────────── */
+.heroCta:focus-visible {
+  outline: 2px solid var(--celeste);
+  outline-offset: 2px;
+}
+
+/* ─────────────────────────── Reduced motion ─────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .heroTitle,
+  .heroSubtitle,
+  .countdownWrap,
+  .heroMeta,
+  .heroCta,
+  .ctaNote,
+  .flagStrip {
+    animation: none;
+  }
+  .prizeFeatured::after {
+    display: none;
+  }
+  .skelBlock {
+    animation: none;
+  }
+}

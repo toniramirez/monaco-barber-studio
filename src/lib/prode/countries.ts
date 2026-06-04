@@ -1,0 +1,80 @@
+/**
+ * Nombres de selección en español (rioplatense) por código FIFA de 3 letras.
+ * Para que la UI se sienta local ("NUEVA ZELANDA", "HAITÍ") en vez del inglés
+ * que devuelve la API. Si falta el código, cae al nombre original.
+ */
+export const ES_TEAM_NAME: Record<string, string> = {
+  ALG: "Argelia",
+  ARG: "Argentina",
+  AUS: "Australia",
+  AUT: "Austria",
+  BEL: "Bélgica",
+  BIH: "Bosnia",
+  BRA: "Brasil",
+  CAN: "Canadá",
+  CIV: "Costa de Marfil",
+  COD: "RD Congo",
+  COL: "Colombia",
+  CPV: "Cabo Verde",
+  CRO: "Croacia",
+  CUW: "Curazao",
+  CZE: "Chequia",
+  ECU: "Ecuador",
+  EGY: "Egipto",
+  ENG: "Inglaterra",
+  ESP: "España",
+  FRA: "Francia",
+  GER: "Alemania",
+  GHA: "Ghana",
+  HAI: "Haití",
+  IRN: "Irán",
+  IRQ: "Irak",
+  JOR: "Jordania",
+  JPN: "Japón",
+  KOR: "Corea del Sur",
+  KSA: "Arabia Saudita",
+  MAR: "Marruecos",
+  MEX: "México",
+  NED: "Países Bajos",
+  NOR: "Noruega",
+  NZL: "Nueva Zelanda",
+  PAN: "Panamá",
+  PAR: "Paraguay",
+  POR: "Portugal",
+  QAT: "Catar",
+  RSA: "Sudáfrica",
+  SCO: "Escocia",
+  SEN: "Senegal",
+  SUI: "Suiza",
+  SWE: "Suecia",
+  TUN: "Túnez",
+  TUR: "Turquía",
+  URY: "Uruguay",
+  USA: "Estados Unidos",
+  UZB: "Uzbekistán",
+  // Repechaje / posibles clasificados (por si cambia el fixture):
+  WAL: "Gales",
+  GRE: "Grecia",
+  DEN: "Dinamarca",
+  CRC: "Costa Rica",
+  PER: "Perú",
+  CHI: "Chile",
+  BOL: "Bolivia",
+  VEN: "Venezuela",
+  NGA: "Nigeria",
+  CMR: "Camerún",
+  JAM: "Jamaica",
+  ITA: "Italia",
+  POL: "Polonia",
+  SRB: "Serbia",
+  UAE: "Emiratos Árabes",
+  NCL: "Nueva Caledonia",
+  NGR: "Nigeria",
+};
+
+/** Nombre en español de una selección, con fallback al nombre crudo. Normaliza el código. */
+export function teamEsName(team: { code: string | null; name: string } | null | undefined): string {
+  if (!team) return "A definir";
+  const code = team.code ? team.code.toUpperCase() : "";
+  return (code && ES_TEAM_NAME[code]) || team.name;
+}
