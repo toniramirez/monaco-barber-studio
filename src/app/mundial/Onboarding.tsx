@@ -70,7 +70,7 @@ export default function Onboarding() {
       if (!r.ok) return setError(r.error);
       if (r.data.needName) return setError("Completá tu nombre para crear la cuenta");
       if (r.data.displayName) setDisplayName(r.data.displayName);
-      if (r.data.joinedLeague) setJoinedLeagueMsg(`¡Te uniste a la liga "${r.data.joinedLeague}"! 🤝`);
+      if (r.data.joinedLeague) setJoinedLeagueMsg(`¡Te uniste a la liga "${r.data.joinedLeague}"!`);
       setView("profile");
     });
   }
@@ -84,7 +84,7 @@ export default function Onboarding() {
       if (!r.ok) return setError(r.error);
       if (r.data.needName) {
         setAuthMode("register");
-        return setError("No encontramos una cuenta con ese teléfono. Creá la tuya 👇");
+        return setError("No encontramos una cuenta con ese teléfono. Creá la tuya.");
       }
       // Jugador que vuelve: recargamos para hidratar su estado y caer en el sendero.
       router.refresh();
@@ -127,7 +127,7 @@ export default function Onboarding() {
         <AnimatePresence mode="wait">
           {view === "register" && authMode === "register" && (
             <motion.div key="register" {...animate}>
-              <h2 className={styles.stepTitle}>Creá tu cuenta 🎰</h2>
+              <h2 className={styles.stepTitle}>Creá tu cuenta</h2>
               <p className={styles.stepSub}>
                 Elegí un PIN de 4 dígitos. Después entrás solo con el PIN, sin esperar códigos.
               </p>
@@ -161,7 +161,7 @@ export default function Onboarding() {
 
           {view === "register" && authMode === "login" && (
             <motion.div key="login" {...animate}>
-              <h2 className={styles.stepTitle}>Entrá con tu PIN 🔑</h2>
+              <h2 className={styles.stepTitle}>Entrá con tu PIN</h2>
               <p className={styles.stepSub}>Poné tu teléfono y el PIN que elegiste cuando te sumaste.</p>
               <div className={shell.field}>
                 <label className={shell.label} htmlFor="ob-wpp-l">WhatsApp</label>

@@ -32,7 +32,6 @@ export const CHALLENGES: ChallengeDef[] = [
     title: "Desafío 1",
     short: "D1",
     subtitle: "Fecha 1 · Fase de grupos",
-    emoji: "⚽",
     reward: { label: "1 mes de cortes gratis", tier: "month" },
   },
   {
@@ -44,7 +43,6 @@ export const CHALLENGES: ChallengeDef[] = [
     title: "Desafío 2",
     short: "D2",
     subtitle: "Fecha 2 · Fase de grupos",
-    emoji: "⚽",
     reward: { label: "1 mes de cortes gratis", tier: "month" },
   },
   {
@@ -56,7 +54,6 @@ export const CHALLENGES: ChallengeDef[] = [
     title: "Desafío 3",
     short: "D3",
     subtitle: "Fecha 3 · Cierre de grupos",
-    emoji: "⚽",
     reward: { label: "1 mes de cortes gratis", tier: "month" },
   },
   {
@@ -66,7 +63,6 @@ export const CHALLENGES: ChallengeDef[] = [
     title: "La Gran Quiniela",
     short: "GQ",
     subtitle: "Campeón, goleador y más",
-    emoji: "👑",
     reward: { label: "Define el Gran Premio", tier: "special" },
     special: true,
   },
@@ -79,7 +75,6 @@ export const CHALLENGES: ChallengeDef[] = [
     title: "16vos de final",
     short: "16",
     subtitle: "Mata o muere",
-    emoji: "🔥",
     reward: { label: "1 mes + camiseta", tier: "jersey" },
   },
   {
@@ -91,7 +86,6 @@ export const CHALLENGES: ChallengeDef[] = [
     title: "8vos de final",
     short: "8",
     subtitle: "Los mejores 16",
-    emoji: "🔥",
     reward: { label: "1 mes + camiseta", tier: "jersey" },
   },
   {
@@ -103,7 +97,6 @@ export const CHALLENGES: ChallengeDef[] = [
     title: "Cuartos de final",
     short: "4",
     subtitle: "Octava parte",
-    emoji: "🎡",
     reward: { label: "Ruleta por puntos", tier: "roulette" },
   },
   {
@@ -115,7 +108,6 @@ export const CHALLENGES: ChallengeDef[] = [
     title: "Semifinales",
     short: "SF",
     subtitle: "A un paso de la gloria",
-    emoji: "🎡",
     reward: { label: "Ruleta por puntos", tier: "roulette" },
   },
   {
@@ -127,7 +119,6 @@ export const CHALLENGES: ChallengeDef[] = [
     title: "Tercer puesto",
     short: "3°",
     subtitle: "El bronce",
-    emoji: "🎡",
     reward: { label: "Ruleta por puntos", tier: "roulette" },
   },
   {
@@ -137,9 +128,8 @@ export const CHALLENGES: ChallengeDef[] = [
     stage: "final",
     matchday: null,
     title: "La Final",
-    short: "🏆",
+    short: "Final",
     subtitle: "El partido del título",
-    emoji: "🎡",
     reward: { label: "Ruleta por puntos", tier: "roulette" },
   },
 ];

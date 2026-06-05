@@ -54,7 +54,7 @@ export default async function MundialPage() {
 
         <div className={styles.heroInner}>
           <span className={shell.eyebrow}>
-            🇦🇷 <Sparkles size={13} aria-hidden="true" /> Mundial 2026 · Monaco
+            <Sparkles size={13} aria-hidden="true" /> Mundial 2026 · Monaco
           </span>
 
           <h1 className={`${shell.shineTitle} ${styles.heroTitle}`}>La Quiniela del Campeón</h1>
@@ -90,11 +90,11 @@ export default async function MundialPage() {
             <Gift size={14} aria-hidden="true" /> Mirá los premios
           </Link>
 
-          {/* Tira de banderas en movimiento (marquee, duplicada para loop sin corte) */}
+          {/* Ticker de selecciones en movimiento (marquee, duplicado para loop sin corte) */}
           <div className={styles.flagMarquee} aria-hidden="true">
             <div className={styles.flagTrack}>
-              <span>🇦🇷 🇧🇷 🇫🇷 🇪🇸 🇵🇹 🇳🇱 🇩🇪 🇺🇾 🇲🇽 🇬🇧 🇭🇷 🇲🇦</span>
-              <span>🇦🇷 🇧🇷 🇫🇷 🇪🇸 🇵🇹 🇳🇱 🇩🇪 🇺🇾 🇲🇽 🇬🇧 🇭🇷 🇲🇦</span>
+              <span>ARGENTINA · BRASIL · FRANCIA · ESPAÑA · PORTUGAL · PAÍSES BAJOS · ALEMANIA · URUGUAY · MÉXICO · INGLATERRA · CROACIA · MARRUECOS · </span>
+              <span>ARGENTINA · BRASIL · FRANCIA · ESPAÑA · PORTUGAL · PAÍSES BAJOS · ALEMANIA · URUGUAY · MÉXICO · INGLATERRA · CROACIA · MARRUECOS · </span>
             </div>
           </div>
         </div>

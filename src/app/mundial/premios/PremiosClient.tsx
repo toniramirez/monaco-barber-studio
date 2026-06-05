@@ -17,6 +17,8 @@ import {
   Clock,
   Sparkles,
   ArrowRight,
+  Disc3,
+  Medal,
 } from "lucide-react";
 import shell from "../Shell.module.css";
 import styles from "./Premios.module.css";
@@ -310,7 +312,7 @@ function JerseyHero() {
 type Challenge = {
   phase: string;
   reward: React.ReactNode;
-  ico: string;
+  ico: React.ReactNode;
   note: string;
   thumb?: boolean;
   teaser?: boolean;
@@ -319,24 +321,20 @@ type Challenge = {
 const CHALLENGES: Challenge[] = [
   {
     phase: "D1 · D2 · D3",
-    ico: "🏆",
+    ico: <Trophy size={20} aria-hidden="true" />,
     reward: <>1 mes de cortes gratis</>,
     note: "Salís 1º de la fecha → es tuyo.",
   },
   {
     phase: "16vos · 8vos",
-    ico: "🏆",
-    reward: (
-      <>
-        1 mes <span aria-hidden="true">+ 👕</span> camiseta
-      </>
-    ),
+    ico: <Shirt size={20} aria-hidden="true" />,
+    reward: <>1 mes + camiseta</>,
     note: "Ganás el desafío y te llevás la oficial.",
     thumb: true,
   },
   {
     phase: "4tos · Semis · 3er · Final",
-    ico: "🎡",
+    ico: <Disc3 size={20} aria-hidden="true" />,
     reward: <>Ruleta por puntos</>,
     note: "Se activa en fase final.",
     teaser: true,
@@ -411,7 +409,7 @@ function ChallengePrizes() {
 /* ─────────────────────────── 4 · Gran Premio (podio) ─────────────────────────── */
 type Podium = {
   rank: number;
-  medal: string;
+  medalCls: string;
   span: string;
   step: string;
   reward: React.ReactNode;
@@ -421,38 +419,38 @@ type Podium = {
 const PODIUM: Podium[] = [
   {
     rank: 2,
-    medal: "🥈",
+    medalCls: styles.medalSilver,
     span: styles.step2,
     step: "step2",
     reward: (
       <>
         6 MESES
-        <span className={styles.mo}>+ 👕 camiseta</span>
+        <span className={styles.mo}>+ camiseta</span>
       </>
     ),
   },
   {
     rank: 1,
-    medal: "🥇",
+    medalCls: styles.medalGold,
     span: styles.step1,
     step: "step1",
     crown: true,
     reward: (
       <>
         1 AÑO gratis
-        <span className={styles.mo}>+ 👕 camiseta</span>
+        <span className={styles.mo}>+ camiseta</span>
       </>
     ),
   },
   {
     rank: 3,
-    medal: "🥉",
+    medalCls: styles.medalBronze,
     span: styles.step3,
     step: "step3",
     reward: (
       <>
         3 MESES
-        <span className={styles.mo}>+ 👕 camiseta</span>
+        <span className={styles.mo}>+ camiseta</span>
       </>
     ),
   },
@@ -484,8 +482,8 @@ function GrandPrize() {
                   aria-hidden="true"
                 />
               )}
-              <span className={styles.podiumMedal} aria-hidden="true">
-                {p.medal}
+              <span className={`${styles.podiumMedal} ${p.medalCls}`} aria-hidden="true">
+                <Medal size={22} />
               </span>
               <span className={styles.podiumJersey} aria-hidden="true">
                 <Image

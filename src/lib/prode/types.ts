@@ -114,7 +114,6 @@ export type ChallengeDef = {
   title: string;
   short: string;
   subtitle: string;
-  emoji: string;
   reward: { label: string; tier: ChallengeRewardTier };
   /** El nodo especial "cofre" (Gran Quiniela) se dibuja al costado del sendero. */
   special?: boolean;

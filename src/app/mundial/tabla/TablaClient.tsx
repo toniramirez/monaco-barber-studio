@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { Crown, RefreshCw, Ticket, Users, ChevronRight } from "lucide-react";
+import { Crown, RefreshCw, Ticket, Users, ChevronRight, Trophy } from "lucide-react";
 import Link from "next/link";
 import shell from "../Shell.module.css";
 import styles from "./Tabla.module.css";
@@ -124,7 +124,7 @@ export default function TablaClient({
         </div>
         <p className={shell.sectionSub}>
           {scope === WEEK
-            ? "El ranking de esta semana. El 1º se lleva un corte gratis 💈"
+            ? "El ranking de esta semana. El 1º se lleva un corte gratis."
             : activeLeague
               ? "Tu liga privada. El ranking acá es solo entre tus invitados."
               : "Sumá fichas y escalá. El 1º de la semana se lleva un corte gratis."}
@@ -194,9 +194,9 @@ export default function TablaClient({
       {leaderboard.length === 0 ? (
         <div className={styles.empty}>
           <div className={styles.emptyEmoji} aria-hidden="true">
-            🏁
+            <Trophy size={40} />
           </div>
-          <p className={shell.sectionSub}>Sé el primero en sumar puntos 🏁</p>
+          <p className={shell.sectionSub}>Sé el primero en sumar puntos.</p>
         </div>
       ) : (
         <>

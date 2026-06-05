@@ -26,8 +26,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     if (s) {
       const champ = s.champion ? teamEsName(s.champion) : null;
       title = champ
-        ? `${s.display_name} le apostó a ${champ} campeón 🏆 ¿le ganás?`
-        : `${s.display_name} está jugando el Prode Mundial 🏆 ¿le ganás?`;
+        ? `${s.display_name} le apostó a ${champ} campeón. ¿le ganás?`
+        : `${s.display_name} está jugando el Prode Mundial. ¿le ganás?`;
       description = "Sumate gratis al Prode Mundial de Monaco, armá tu quiniela y ganá cortes.";
     }
   } catch {
@@ -74,7 +74,7 @@ export default async function SharePage({ params, searchParams }: Props) {
               <Trophy size={40} className={styles.pickIcon} aria-hidden="true" />
             )}
             <p className={styles.pickText}>
-              Le apostó a <strong className={styles.hl}>{champ}</strong> campeón del Mundial 🏆
+              Le apostó a <strong className={styles.hl}>{champ}</strong> campeón del Mundial
             </p>
           </div>
         ) : (

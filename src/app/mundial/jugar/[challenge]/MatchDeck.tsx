@@ -13,7 +13,7 @@ import { motion, AnimatePresence, useReducedMotion, type PanInfo } from "framer-
 import { useNowSeconds } from "@/lib/prode/clock";
 import {
   ChevronLeft, ChevronRight, ChevronsLeft, Plus, Minus, Check, Lock, Clock,
-  Flame, Trophy, ArrowRight, PartyPopper, Share2, Sparkles, CalendarClock,
+  Flame, Trophy, ArrowRight, PartyPopper, Share2, Sparkles, CalendarClock, Crown,
 } from "lucide-react";
 import shell from "../../Shell.module.css";
 import styles from "./MatchDeck.module.css";
@@ -631,7 +631,7 @@ function MatchCard({
         {touched ? (
           <OutcomeChip outcome={outcome} esHome={esHome} esAway={esAway} rm={rm} />
         ) : (
-          <span className={styles.hint}>Tocá + y − para armar tu marcador 👆</span>
+          <span className={styles.hint}>Tocá + y − para armar tu marcador</span>
         )}
       </div>
       <div className={shell.srOnly} role="status" aria-live="polite">{srStatus}</div>
@@ -780,7 +780,7 @@ function TeamSide({
         ) : (
           <span className={styles.flag} aria-hidden="true" />
         )}
-        {winning && <span className={styles.crown} aria-hidden="true">★</span>}
+        {winning && <span className={styles.crown} aria-hidden="true"><Crown size={13} strokeWidth={2.5} /></span>}
       </div>
       <div id={id} className={styles.teamName}>{(name || label || "A definir").toUpperCase()}</div>
 
@@ -847,7 +847,7 @@ function Victory({
   }, [participantId]);
 
   const onShare = useCallback(async () => {
-    const text = `¡Ya jugué mis pronósticos del Mundial en el Prode de Monaco! 🏆 ¿Le ganás a mi jugada? Jugá por ${rewardLabel} 👇`;
+    const text = `¡Ya jugué mis pronósticos del Mundial en el Prode de Monaco! ¿Le ganás a mi jugada? Jugá por ${rewardLabel}.`;
     try {
       if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
         await navigator.share({ title: "Mi jugada · Prode Mundial 2026", text, url: shareUrl });
@@ -894,7 +894,7 @@ function Victory({
         ¡Desafío jugado!
       </h1>
       <p className={styles.victorySub}>
-        Jugaste los <b>{playableCount} de {total}</b> partidos. Ya estás adentro del sorteo por <b>{rewardLabel}</b>. ¡Dale que la clavás! 🙌
+        Jugaste los <b>{playableCount} de {total}</b> partidos. Ya estás adentro del sorteo por <b>{rewardLabel}</b>. ¡Dale que la clavás!
       </p>
 
       <div className={styles.victoryActions}>

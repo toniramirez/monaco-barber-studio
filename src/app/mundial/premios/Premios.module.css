@@ -293,8 +293,7 @@
   width: 46px;
   height: 46px;
   border-radius: 14px;
-  font-size: 1.4rem;
-  line-height: 1;
+  color: var(--gold);
   background: rgba(0, 0, 0, 0.3);
   border: 1px solid var(--card-border);
 }
@@ -445,9 +444,13 @@
   filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.5));
 }
 .podiumMedal {
-  font-size: 1.5rem;
+  display: grid;
+  place-items: center;
   line-height: 1;
 }
+.medalGold { color: var(--gold); }
+.medalSilver { color: #cdd3da; }
+.medalBronze { color: #d28b5a; }
 .podiumReward {
   font-size: clamp(0.66rem, 2.4vw, 0.78rem);
   font-weight: 800;

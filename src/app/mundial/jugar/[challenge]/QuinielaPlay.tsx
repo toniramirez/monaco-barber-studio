@@ -121,7 +121,7 @@ export default function QuinielaPlay({ questions, teams, myState, locked, reward
                 </div>
               )}
               <PartyPopper className={styles.doneIcon} size={40} aria-hidden="true" />
-              <h2 className={styles.doneTitle}>¡Gran Quiniela guardada! 👑</h2>
+              <h2 className={styles.doneTitle}>¡Gran Quiniela guardada!</h2>
               <p className={styles.doneSub}>
                 Tus pronósticos grandes están cargados. Seguí completando los Desafíos para sumar fichas.
               </p>
@@ -227,7 +227,7 @@ export default function QuinielaPlay({ questions, teams, myState, locked, reward
                   </button>
                 ) : (
                   <button className={`${shell.btnPrimary} ${styles.navBtn}`} onClick={onSave} disabled={pending}>
-                    {pending ? "Guardando…" : "Guardar mi Quiniela 🏆"}
+                    {pending ? "Guardando…" : "Guardar mi Quiniela"}
                   </button>
                 )}
               </div>

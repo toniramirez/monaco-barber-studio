@@ -2,19 +2,15 @@
 
 /* ════════════════════════════════════════════════════════════════════════
    "El Camino al Título" — HUB / sendero vertical de Desafíos.
-   Estilo mapa Duolingo/Candy-Crush: nodos circulares conectados por una línea
-   que se pinta dorada en los tramos completados. Serpentea izq/der. El nodo
-   especial (La Gran Quiniela) cuelga como un cofre al costado. Arriba de todo,
-   el Gran Premio (meta, no jugable) linkea a /mundial/premios.
+   Eje vertical CONTINUO a la izquierda (la "cuerda" del camino), nodos sobre el
+   eje y la tarjeta del desafío a la derecha. Se sube desde La Largada (abajo)
+   hasta el Gran Premio (la copa, arriba). El tramo recorrido se pinta dorado.
+   La Gran Quiniela es un nodo especial (cofre) dentro del mismo flujo.
 
-   Reglas de oro de este proyecto:
-   · NADA de reloj/aleatoriedad en render (no rompemos hidratación SSR). Las
-     posiciones del serpenteo son DETERMINISTAS por índice.
-   · Respetamos prefers-reduced-motion en TODAS las animaciones (sin stagger,
-     sin idle-bounce; estados finales directos).
-   · a11y: aria-labels, role="status" donde cambia el progreso, foco celeste,
-     alt en imágenes; los nodos locked no son foco (tabIndex -1 + aria-disabled).
-   · Nombres de selección vía teamEsName (acá no aplica: no hay equipos).
+   Reglas de oro del proyecto:
+   · NADA de reloj/aleatoriedad en render (SSR-safe). Sin emojis: sólo íconos.
+   · prefers-reduced-motion respetado en TODAS las animaciones.
+   · a11y: aria-labels, role/aria en progreso, foco celeste; nodos locked sin foco.
    ════════════════════════════════════════════════════════════════════════ */
 
 import { useMemo } from "react";
@@ -23,12 +19,15 @@ import { motion, useReducedMotion, type Variants } from "framer-motion";
 import {
   Lock,
   Crown,
-  Trophy,
   Check,
   ChevronRight,
   Gift,
   Shirt,
+  Scissors,
+  Disc3,
+  Goal,
   Sparkles,
+  Trophy,
 } from "lucide-react";
 import shell from "./Shell.module.css";
 import styles from "./Sendero.module.css";
@@ -42,21 +41,20 @@ type Props = {
   locked: boolean;
 };
 
-/* ── Helpers de presentación de la recompensa por tier ── */
+/* Ícono de la recompensa por tier (lucide, sin emojis). */
 function rewardIcon(tier: ChallengeRewardTier) {
   switch (tier) {
     case "month":
-      return <Trophy size={13} aria-hidden="true" />;
+      return <Scissors size={13} aria-hidden="true" />;
     case "jersey":
       return <Shirt size={13} aria-hidden="true" />;
     case "roulette":
-      return <span className={styles.rewardEmoji} aria-hidden="true">🎡</span>;
+      return <Disc3 size={13} aria-hidden="true" />;
     case "special":
       return <Crown size={13} aria-hidden="true" />;
   }
 }
 
-/** Etiqueta corta del CTA según el estado y si el torneo está cerrado. */
 function ctaText(state: ChallengeState["state"], locked: boolean): string {
   if (locked) return state === "locked" ? "Próximamente" : "Ver";
   switch (state) {
@@ -71,27 +69,25 @@ function ctaText(state: ChallengeState["state"], locked: boolean): string {
   }
 }
 
-/* ── Variantes de animación (framer-motion). El contenedor escalona los
-   hijos como si el camino se dibujara de a poco. ── */
-const trackVariants: Variants = {
+const spineVariants: Variants = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.06, delayChildren: 0.05 } },
+  show: { transition: { staggerChildren: 0.05, delayChildren: 0.04 } },
 };
-const nodeVariants: Variants = {
-  hidden: { opacity: 0, y: 16, filter: "blur(6px)" },
+const rowVariants: Variants = {
+  hidden: { opacity: 0, y: 16, filter: "blur(5px)" },
   show: {
     opacity: 1,
     y: 0,
     filter: "blur(0px)",
-    transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] },
+    transition: { duration: 0.38, ease: [0.16, 1, 0.3, 1] },
   },
 };
 
 export default function Sendero({ challenges, displayName, totalPoints, locked }: Props) {
   const rm = useReducedMotion();
 
-  // Separamos el cofre (La Gran Quiniela, special) — se dibuja como rama lateral,
-  // siempre disponible. El resto arma el sendero principal en orden de torneo.
+  // El cofre (La Gran Quiniela, special) se separa para insertarlo como nodo
+  // propio en el flujo. El resto arma el camino en orden de torneo.
   const { chest, path } = useMemo(() => {
     let chest: ChallengeState | null = null;
     const path: ChallengeState[] = [];
@@ -102,7 +98,7 @@ export default function Sendero({ challenges, displayName, totalPoints, locked }
     return { chest, path };
   }, [challenges]);
 
-  // Progreso global = desafíos completados / desafíos jugables (no locked).
+  // Progreso global = desafíos completados / jugables (no locked).
   const playable = useMemo(() => path.filter((c) => c.state !== "locked"), [path]);
   const completedCount = useMemo(
     () => playable.filter((c) => c.state === "completed").length,
@@ -111,24 +107,36 @@ export default function Sendero({ challenges, displayName, totalPoints, locked }
   const pct = playable.length > 0 ? Math.round((completedCount / playable.length) * 100) : 0;
 
   // La ficha del jugador descansa sobre el nodo in_progress más avanzado; si no
-  // hay ninguno en curso, sobre el último completado. (Índice en el array
-  // ordenado de torneo: "más avanzado" = índice mayor.)
-  const tokenIndex = useMemo(() => {
-    let inProgress = -1;
-    let lastDone = -1;
-    path.forEach((c, i) => {
-      if (c.state === "in_progress") inProgress = i;
-      if (c.state === "completed") lastDone = i;
+  // hay ninguno, sobre el último completado.
+  const tokenKey = useMemo(() => {
+    let inProgress: string | null = null;
+    let lastDone: string | null = null;
+    path.forEach((c) => {
+      if (c.state === "in_progress") inProgress = c.key;
+      if (c.state === "completed") lastDone = c.key;
     });
-    return inProgress !== -1 ? inProgress : lastDone;
+    return inProgress ?? lastDone;
   }, [path]);
 
   const initial = (displayName?.trim()?.[0] || "?").toUpperCase();
 
-  // Render visual: ABAJO la Largada → Desafío 1 … hacia ARRIBA Final → Gran Premio
-  // (la copa). Con column-reverse en CSS, el orden del DOM (Largada, D1…Final,
-  // Gran Premio) se invierte visualmente, así el stagger entra primero por abajo
-  // (la largada) y "sube" el camino hacia la meta.
+  // Orden visual TOP→BOTTOM: Final … 16vos, [cofre Gran Quiniela], D3 … D1.
+  // (path está en orden de torneo D1…Final → lo invertimos.) El cofre se inserta
+  // justo antes del primer desafío de grupos (queda entre eliminatorias y grupos).
+  const rows = useMemo(() => {
+    const reversed = [...path].reverse();
+    const out: ({ type: "challenge"; c: ChallengeState } | { type: "cofre" })[] = [];
+    let cofreDone = false;
+    for (const c of reversed) {
+      if (!cofreDone && chest && c.stage === "group") {
+        out.push({ type: "cofre" });
+        cofreDone = true;
+      }
+      out.push({ type: "challenge", c });
+    }
+    if (!cofreDone && chest) out.push({ type: "cofre" });
+    return out;
+  }, [path, chest]);
 
   return (
     <section className={styles.hub} aria-labelledby="sendero-title">
@@ -143,7 +151,7 @@ export default function Sendero({ challenges, displayName, totalPoints, locked }
             <strong>{totalPoints}</strong> fichas
           </span>
         </div>
-        <p className={styles.headSub}>Cada Desafío, más cortes en juego</p>
+        <p className={styles.headSub}>Subí el camino: cada Desafío, más cortes en juego</p>
 
         <div className={styles.progress}>
           <div
@@ -167,93 +175,74 @@ export default function Sendero({ challenges, displayName, totalPoints, locked }
         </div>
       </header>
 
-      {/* ── El sendero ── */}
+      {/* ── El camino ── */}
       <motion.div
-        className={styles.track}
-        variants={rm ? undefined : trackVariants}
+        className={styles.spine}
+        variants={rm ? undefined : spineVariants}
         initial={rm ? false : "hidden"}
         animate={rm ? undefined : "show"}
       >
-        {/* LARGADA — el inicio del camino. Primero en el DOM → con column-reverse
-            queda visualmente ABAJO de todo (desde acá se sube hacia la copa). */}
-        <motion.div className={styles.startRow} variants={rm ? undefined : nodeVariants} aria-hidden="true">
-          <span className={styles.startDot} />
-          <span className={styles.startLabel}>La largada</span>
-        </motion.div>
-
-        {/* Nodos del torneo: Final (arriba) … D1 (abajo). El cofre cuelga del D3. */}
-        {path.map((c, i) => {
-          const side: "left" | "right" = i % 2 === 0 ? "left" : "right";
-          // Tramo conector dorado si ESTE nodo ya está completado (el camino
-          // hasta él quedó "iluminado").
-          const linkDone = c.state === "completed";
-          const hasToken = i === tokenIndex && tokenIndex !== -1;
-          // El cofre se ancla a la altura del último grupo (group-3), que es el
-          // último nodo antes de que arranque la fase eliminatoria.
-          const showChest = chest != null && c.key === "group-3";
-
-          return (
-            <NodeRow
-              key={c.key}
-              challenge={c}
-              side={side}
-              linkDone={linkDone}
-              locked={locked}
-              token={hasToken ? { initial, name: displayName, rm: !!rm } : null}
-              chest={showChest ? chest : null}
-              chestLocked={locked}
-              rm={!!rm}
-              index={i}
-            />
-          );
-        })}
-
-        {/* META — Gran Premio (no jugable). Último en el DOM → con column-reverse
-            queda visualmente ARRIBA de todo (la copa, el final del camino). */}
-        <motion.div className={styles.goalRow} variants={rm ? undefined : nodeVariants}>
+        {/* META — Gran Premio (la copa, arriba de todo). */}
+        <motion.div variants={rm ? undefined : rowVariants} className={styles.goalRow}>
           <Link href="/mundial/premios" className={styles.goalNode} aria-label="La meta: el Gran Premio. Ver premios">
             <span className={styles.goalGlow} aria-hidden="true" />
             <span className={styles.goalCrown} aria-hidden="true">
-              <Crown size={30} />
+              <Crown size={28} />
             </span>
             <span className={styles.goalText}>
               <strong>El Gran Premio</strong>
-              <small>La meta: 1 año + camiseta</small>
+              <small>La meta: 1 año de cortes + camiseta</small>
             </span>
             <ChevronRight size={18} className={styles.goalChevron} aria-hidden="true" />
           </Link>
+        </motion.div>
+
+        {rows.map((r, i) =>
+          r.type === "cofre" ? (
+            <CofreRow key="cofre" chest={chest!} locked={locked} rm={!!rm} first={i === 0} />
+          ) : (
+            <PathRow
+              key={r.c.key}
+              c={r.c}
+              locked={locked}
+              rm={!!rm}
+              first={i === 0}
+              token={r.c.key === tokenKey && tokenKey !== null ? { initial, rm: !!rm } : null}
+            />
+          ),
+        )}
+
+        {/* LARGADA — el inicio del camino, abajo de todo. */}
+        <motion.div variants={rm ? undefined : rowVariants} className={styles.largadaRow} aria-hidden="true">
+          <div className={styles.rail}>
+            <span className={`${styles.line} ${styles.lineGold} ${styles.lineToCenter}`} />
+            <span className={styles.largadaDot} />
+          </div>
+          <span className={styles.largadaLabel}>La largada</span>
         </motion.div>
       </motion.div>
     </section>
   );
 }
 
-/* ───────────────────────── Fila de un nodo ───────────────────────── */
-
-function NodeRow({
-  challenge: c,
-  side,
-  linkDone,
+/* ───────────────────────── Fila de un nodo del camino ───────────────────────── */
+function PathRow({
+  c,
   locked,
-  token,
-  chest,
-  chestLocked,
   rm,
-  index,
+  first,
+  token,
 }: {
-  challenge: ChallengeState;
-  side: "left" | "right";
-  /** El tramo conector que sale de este nodo (hacia el de arriba) va dorado. */
-  linkDone: boolean;
+  c: ChallengeState;
   locked: boolean;
-  token: { initial: string; name: string; rm: boolean } | null;
-  chest: ChallengeState | null;
-  chestLocked: boolean;
   rm: boolean;
-  index: number;
+  first: boolean;
+  token: { initial: string; rm: boolean } | null;
 }) {
   const isLocked = c.state === "locked";
   const pct = c.total > 0 ? Math.min(100, Math.round((c.done / c.total) * 100)) : 0;
+  // El tramo está "recorrido" (dorado) si ya lo jugaste o lo estás jugando.
+  const reached = c.state === "completed" || c.state === "in_progress";
 
   const stateClass =
     c.state === "completed"
@@ -264,168 +253,149 @@ function NodeRow({
           ? styles.nodeOpen
           : styles.nodeLocked;
 
-  // a11y label completo del nodo.
+  const lineCls = `${styles.line} ${reached ? styles.lineGold : styles.lineDashed} ${first ? styles.lineFromCenter : ""}`;
+
   const aria = isLocked
     ? `${c.title}. Bloqueado, ${c.subtitle}. Recompensa: ${c.reward.label}`
     : `${c.title}. ${c.done} de ${c.total} jugados. Recompensa: ${c.reward.label}. ${ctaText(c.state, locked)}`;
 
   const inner = (
     <>
-      {/* Anillo de progreso (sólo in_progress): conic-gradient dorado. */}
-      {c.state === "in_progress" && (
-        <span
-          className={styles.ring}
-          aria-hidden="true"
-          style={{ ["--pct" as string]: `${pct}%` }}
-        />
-      )}
+      <div className={styles.rail}>
+        <span className={lineCls} aria-hidden="true" />
+        <div className={`${styles.node} ${stateClass}`}>
+          {c.state === "in_progress" && (
+            <span className={styles.ring} aria-hidden="true" style={{ ["--pct" as string]: `${pct}%` }} />
+          )}
+          <span className={styles.nodeFace}>
+            {c.state === "completed" ? (
+              <Check size={28} strokeWidth={3} className={styles.checkIcon} aria-hidden="true" />
+            ) : isLocked ? (
+              <Lock size={22} className={styles.lockIcon} aria-hidden="true" />
+            ) : (
+              <Goal size={28} className={styles.faceIcon} aria-hidden="true" />
+            )}
+          </span>
+          {token && (
+            <motion.span
+              className={styles.token}
+              aria-hidden="true"
+              {...(token.rm
+                ? {}
+                : {
+                    animate: { y: [0, -5, 0] },
+                    transition: { duration: 1.8, repeat: Infinity, ease: "easeInOut" },
+                  })}
+            >
+              <span className={styles.tokenFace}>{token.initial}</span>
+            </motion.span>
+          )}
+        </div>
+      </div>
 
-      <span className={styles.nodeFace}>
-        {c.state === "completed" ? (
-          <Check size={30} strokeWidth={3} className={styles.checkIcon} aria-hidden="true" />
-        ) : isLocked ? (
-          <Lock size={24} className={styles.lockIcon} aria-hidden="true" />
-        ) : (
-          <span className={styles.emoji} aria-hidden="true">{c.emoji}</span>
-        )}
-      </span>
-
-      {/* Número de orden del desafío (shineTitle en completados). */}
-      <span
-        className={`${styles.nodeIndex} ${c.state === "completed" ? shell.shineTitle : ""}`}
-        aria-hidden="true"
-      >
-        {index + 1}
-      </span>
-
-      {/* Ficha del jugador descansando sobre el nodo. */}
-      {token && (
-        <motion.span
-          className={styles.token}
-          aria-hidden="true"
-          {...(token.rm
-            ? {}
-            : {
-                animate: { y: [0, -5, 0] },
-                transition: { duration: 1.8, repeat: Infinity, ease: "easeInOut" },
-              })}
-        >
-          <span className={styles.tokenFace}>{token.initial}</span>
-        </motion.span>
-      )}
+      <div className={styles.card}>
+        <div className={styles.cardTop}>
+          <span className={styles.short}>{c.short}</span>
+          {isLocked ? (
+            <span className={styles.soon}>Próximamente</span>
+          ) : (
+            <span className={styles.count}>
+              {c.done}/{c.total}
+            </span>
+          )}
+        </div>
+        <h2 className={styles.cardTitle}>{c.title}</h2>
+        <p className={styles.cardSub}>{c.subtitle}</p>
+        <div className={styles.cardFoot}>
+          <span
+            className={`${styles.reward} ${styles[`reward_${c.reward.tier}`] || ""} ${isLocked ? styles.rewardLocked : ""}`}
+          >
+            {rewardIcon(c.reward.tier)}
+            {c.reward.label}
+          </span>
+          {!isLocked && (
+            <span className={styles.cta}>
+              {ctaText(c.state, locked)}
+              <ChevronRight size={14} aria-hidden="true" />
+            </span>
+          )}
+        </div>
+      </div>
     </>
   );
 
   return (
-    <motion.div
-      className={`${styles.row} ${side === "left" ? styles.rowLeft : styles.rowRight}`}
-      variants={rm ? undefined : nodeVariants}
-    >
-      {/* Conector vertical que sube hacia el nodo de arriba. */}
-      <span
-        className={`${styles.connector} ${linkDone ? styles.connectorDone : ""}`}
-        aria-hidden="true"
-      />
-
-      <div className={styles.nodeWrap}>
-        <div className={styles.nodeCol}>
-          {isLocked ? (
-            <div
-              className={`${styles.node} ${stateClass}`}
-              role="group"
-              aria-disabled="true"
-              tabIndex={-1}
-              aria-label={aria}
-            >
-              {inner}
-            </div>
-          ) : (
-            <Link
-              href={`/mundial/jugar/${c.slug}`}
-              className={`${styles.node} ${stateClass}`}
-              aria-label={aria}
-            >
-              {inner}
-            </Link>
-          )}
+    <motion.div variants={rm ? undefined : rowVariants} className={styles.rowWrap}>
+      {isLocked ? (
+        <div className={`${styles.row} ${styles.rowLocked}`} role="group" aria-disabled="true" tabIndex={-1} aria-label={aria}>
+          {inner}
         </div>
-
-        {/* Cartel del desafío (al lado del nodo, hacia el centro). */}
-        <div className={styles.info}>
-          <div className={styles.infoTop}>
-            <span className={styles.infoShort}>{c.short}</span>
-            {c.state !== "locked" && (
-              <span className={styles.infoCount} role="status" aria-live="off">
-                {c.done}/{c.total}
-              </span>
-            )}
-          </div>
-          <h2 className={styles.infoTitle}>{c.title}</h2>
-          <p className={styles.infoSub}>{isLocked ? c.subtitle : c.subtitle}</p>
-
-          <div className={styles.infoFoot}>
-            <span
-              className={`${styles.reward} ${styles[`reward_${c.reward.tier}`] || ""} ${isLocked ? styles.rewardLocked : ""}`}
-            >
-              {rewardIcon(c.reward.tier)}
-              {c.reward.label}
-            </span>
-            <span className={`${styles.cta} ${isLocked ? styles.ctaLocked : ""}`}>
-              {ctaText(c.state, locked)}
-              {!isLocked && <ChevronRight size={14} aria-hidden="true" />}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Cofre lateral — La Gran Quiniela (special). Rama al costado. */}
-      {chest && <Chest chest={chest} locked={chestLocked} side={side} />}
+      ) : (
+        <Link href={`/mundial/jugar/${c.slug}`} className={styles.row} aria-label={aria}>
+          {inner}
+        </Link>
+      )}
     </motion.div>
   );
 }
 
-/* ───────────────────────── Cofre lateral (Gran Quiniela) ───────────────────────── */
-
-function Chest({
+/* ───────────────────────── Cofre — La Gran Quiniela (nodo especial) ───────────────────────── */
+function CofreRow({
   chest,
   locked,
-  side,
+  rm,
+  first,
 }: {
   chest: ChallengeState;
   locked: boolean;
-  side: "left" | "right";
+  rm: boolean;
+  first: boolean;
 }) {
-  const pct = chest.total > 0 ? Math.min(100, Math.round((chest.done / chest.total) * 100)) : 0;
+  const reached = chest.state === "completed" || chest.state === "in_progress";
+  const lineCls = `${styles.line} ${reached ? styles.lineGold : styles.lineDashed} ${first ? styles.lineFromCenter : ""}`;
   const aria = `${chest.title}, siempre disponible. ${chest.done} de ${chest.total} respondidas. Recompensa: ${chest.reward.label}. ${
     locked ? "Ver" : chest.state === "completed" ? "Revisar" : chest.done > 0 ? "Seguir" : "Empezar"
   }`;
 
   return (
-    <Link
-      href="/mundial/jugar/quiniela"
-      className={`${styles.chest} ${side === "left" ? styles.chestRight : styles.chestLeft}`}
-      aria-label={aria}
-    >
-      <span className={styles.chestBranch} aria-hidden="true" />
-      <span className={styles.chestBox}>
-        <span className={styles.chestGlow} aria-hidden="true" />
-        <Gift size={26} className={styles.chestIcon} aria-hidden="true" />
-        {chest.done > 0 && chest.done < chest.total && (
-          <span className={styles.chestPct} aria-hidden="true">{pct}%</span>
-        )}
-        {chest.state === "completed" && (
-          <span className={styles.chestDone} aria-hidden="true">
-            <Sparkles size={13} />
-          </span>
-        )}
-      </span>
-      <span className={styles.chestText}>
-        <strong>{chest.short}</strong>
-        <small>{chest.subtitle}</small>
-        <span className={`${shell.pillGold} ${styles.chestReward}`}>
-          <Crown size={11} aria-hidden="true" /> {chest.reward.label}
-        </span>
-      </span>
-    </Link>
+    <motion.div variants={rm ? undefined : rowVariants} className={styles.rowWrap}>
+      <Link href="/mundial/jugar/quiniela" className={`${styles.row} ${styles.cofreRow}`} aria-label={aria}>
+        <div className={styles.rail}>
+          <span className={lineCls} aria-hidden="true" />
+          <div className={`${styles.node} ${styles.cofreNode}`}>
+            <span className={styles.nodeFace}>
+              <Gift size={26} className={styles.checkIcon} aria-hidden="true" />
+            </span>
+            {chest.state === "completed" && (
+              <span className={styles.cofreDone} aria-hidden="true">
+                <Sparkles size={12} />
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div className={`${styles.card} ${styles.cofreCard}`}>
+          <div className={styles.cardTop}>
+            <span className={styles.short}>Especial</span>
+            <span className={styles.count}>
+              {chest.done}/{chest.total}
+            </span>
+          </div>
+          <h2 className={styles.cardTitle}>{chest.title}</h2>
+          <p className={styles.cardSub}>{chest.subtitle}</p>
+          <div className={styles.cardFoot}>
+            <span className={`${styles.reward} ${styles.reward_special}`}>
+              <Crown size={13} aria-hidden="true" /> {chest.reward.label}
+            </span>
+            {!locked && (
+              <span className={styles.cta}>
+                {chest.state === "completed" ? "Revisar" : chest.done > 0 ? "Seguir" : "Empezar"}
+                <ChevronRight size={14} aria-hidden="true" />
+              </span>
+            )}
+          </div>
+        </div>
+      </Link>
+    </motion.div>
   );
 }

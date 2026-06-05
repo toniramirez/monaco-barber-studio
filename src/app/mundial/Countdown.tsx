@@ -9,7 +9,7 @@ export default function Countdown({ target }: { target: string }) {
   const diff = now === null ? null : Math.max(0, new Date(target).getTime() - now);
 
   if (diff === 0) {
-    return <div className={styles.kickoff}>¡Arrancó el Mundial! 🎉</div>;
+    return <div className={styles.kickoff}>¡Arrancó el Mundial!</div>;
   }
 
   const d = diff === null ? 0 : Math.floor(diff / 86400000);

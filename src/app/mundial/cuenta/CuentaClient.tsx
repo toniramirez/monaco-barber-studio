@@ -131,7 +131,7 @@ export default function CuentaClient({ myState, questions, teams, rewards, edita
     const ligaQ = inviteCode ? `?liga=${inviteCode}` : "";
     // Link a la placa del jugador: preview lindo (OG) en WhatsApp/IG + auto-une por ?liga.
     const url = pid ? `${base}/mundial/share/${pid}${ligaQ}` : `${base}/mundial${ligaQ}`;
-    const text = "Te reto en el Prode Mundial de Monaco 🏆 Armá tu quiniela y ganá cortes:";
+    const text = "Te reto en el Prode Mundial de Monaco. Armá tu quiniela y ganá cortes:";
     if (navigator.share) navigator.share({ title: "Prode Monaco", text, url }).catch(() => {});
     else { navigator.clipboard?.writeText(`${text} ${url}`); setLeagueMsg("¡Link copiado!"); }
   }

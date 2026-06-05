@@ -53,11 +53,11 @@ export default function LeagueInviteCapture() {
       <span className={styles.text}>
         {banner.joined ? (
           <>
-            ¡Te uniste a la liga <strong>{banner.name}</strong>! 🎉
+            ¡Te uniste a la liga <strong>{banner.name}</strong>!
           </>
         ) : (
           <>
-            Te sumás a la liga <strong>{banner.name}</strong> al registrarte 👇
+            Te sumás a la liga <strong>{banner.name}</strong> al registrarte.
           </>
         )}
       </span>

@@ -212,9 +212,10 @@
 }
 .flagTrack span {
   flex: 0 0 auto;
-  padding-right: 0.5rem;
-  font-size: 1.35rem;
-  letter-spacing: 0.45rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: var(--text-secondary);
   white-space: nowrap;
 }
 @keyframes marquee {
@@ -428,18 +429,6 @@
   .flagMarquee,
   .flagTrack {
     animation: none;
-  }
-  .flagMarquee {
-    -webkit-mask-image: none;
-    mask-image: none;
-    text-align: center;
-  }
-  .flagTrack {
-    justify-content: center;
-    width: 100%;
-  }
-  .flagTrack span:last-child {
-    display: none;
   }
   .prizeFeatured::after {
     display: none;
