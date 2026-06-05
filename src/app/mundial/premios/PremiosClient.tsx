@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useState, useSyncExternalStore } from "react";
+import { useCallback, useState } from "react";
 import { motion, useReducedMotion, type Variants } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
+import { useNowMs } from "@/lib/prode/clock";
 import {
   Ticket,
   Gift,
@@ -20,17 +21,6 @@ import {
 import shell from "../Shell.module.css";
 import styles from "./Premios.module.css";
 import Countdown from "../Countdown";
-
-// Reloj SSR-safe (mismo patrón que PartidoDelDia/Countdown): en el server el
-// snapshot es null → no hay mismatch de hidratación por leer el reloj en render.
-// En el cliente late cada segundo para que "se te pasó" aparezca al vencer.
-const subscribeClock = (cb: () => void) => {
-  const id = setInterval(cb, 1000);
-  return () => clearInterval(id);
-};
-function useNow(): number | null {
-  return useSyncExternalStore(subscribeClock, () => Date.now(), () => null);
-}
 
 type Props = {
   registered: boolean;
@@ -125,7 +115,7 @@ function WelcomeTicket({
   // ventana de 48h ya venció. El reloj se lee vía useNow (null en SSR) para no
   // romper la hidratación: en el server expired=false y, ya en el cliente, si la
   // fecha pasó conmutamos a estado "vencido" (el Countdown llega a su fin a la par).
-  const now = useNow();
+  const now = useNowMs();
   const expired =
     now !== null && welcomeExpiresAt
       ? new Date(welcomeExpiresAt).getTime() <= now

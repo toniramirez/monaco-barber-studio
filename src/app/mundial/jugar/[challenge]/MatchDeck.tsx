@@ -6,11 +6,11 @@ import {
   useMemo,
   useRef,
   useState,
-  useSyncExternalStore,
 } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence, useReducedMotion, type PanInfo } from "framer-motion";
+import { useNowSeconds } from "@/lib/prode/clock";
 import {
   ChevronLeft, ChevronRight, ChevronsLeft, Plus, Minus, Check, Lock, Clock,
   Flame, Trophy, ArrowRight, PartyPopper, Share2, Sparkles, CalendarClock,
@@ -60,18 +60,6 @@ const BURST_MINI = Array.from({ length: 12 }, (_, i) => ({
   color: BURST_COLORS[i % BURST_COLORS.length],
 }));
 
-/* ── Reloj SSR-safe vía useSyncExternalStore (snapshot null en server) ── */
-const subscribeClock = (cb: () => void) => {
-  const id = setInterval(cb, 1000);
-  return () => clearInterval(id);
-};
-function useNowSeconds(): number | null {
-  return useSyncExternalStore(
-    subscribeClock,
-    () => Math.floor(Date.now() / 1000),
-    () => null,
-  );
-}
 // Cuenta regresiva PURA a partir del reloj del padre (nowSec, SSR-safe). No usa
 // hooks: así el padre tiene UN solo reloj y card+padre quedan consistentes.
 function computeCountdown(target: string, nowSec: number | null) {
@@ -341,7 +329,7 @@ export default function MatchDeck({
           src="/fondo_prode.png"
           alt=""
           fill
-          priority={false}
+          priority
           sizes="(max-width: 560px) 100vw, 560px"
           className={styles.arenaImg}
         />

@@ -46,7 +46,7 @@ export default async function MundialPage() {
             src="/fondo_prode.png"
             alt=""
             fill
-            priority={false}
+            priority
             sizes="(max-width: 560px) 100vw, 560px"
             className={styles.heroArenaImg}
           />

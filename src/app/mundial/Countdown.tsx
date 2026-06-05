@@ -1,22 +1,11 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
 import styles from "./Shell.module.css";
-
-// Reloj en vivo vía useSyncExternalStore: en el server el snapshot es null (sin
-// mismatch de hidratación por reloj/zona), en el cliente late cada segundo.
-// Sin setState-en-effect.
-const subscribeClock = (cb: () => void) => {
-  const id = setInterval(cb, 1000);
-  return () => clearInterval(id);
-};
-function useNow(): number | null {
-  return useSyncExternalStore(subscribeClock, () => Date.now(), () => null);
-}
+import { useNowMs } from "@/lib/prode/clock";
 
 /** Cuenta regresiva en vivo, estilo marcador de cancha, hasta el cierre de la Quiniela. */
 export default function Countdown({ target }: { target: string }) {
-  const now = useNow();
+  const now = useNowMs();
   const diff = now === null ? null : Math.max(0, new Date(target).getTime() - now);
 
   if (diff === 0) {
