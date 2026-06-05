@@ -125,10 +125,10 @@ export default function Sendero({ challenges, displayName, totalPoints, locked }
 
   const initial = (displayName?.trim()?.[0] || "?").toUpperCase();
 
-  // Render visual de ABAJO (Desafío 1) hacia ARRIBA (Final) + meta arriba de todo.
-  // En el DOM mantenemos el orden de torneo y usamos column-reverse en CSS, así
-  // el stagger sale natural (entra primero el de más abajo). La meta va PRIMERO
-  // en el DOM pero, con column-reverse, queda visualmente ARRIBA de todo.
+  // Render visual: ABAJO la Largada → Desafío 1 … hacia ARRIBA Final → Gran Premio
+  // (la copa). Con column-reverse en CSS, el orden del DOM (Largada, D1…Final,
+  // Gran Premio) se invierte visualmente, así el stagger entra primero por abajo
+  // (la largada) y "sube" el camino hacia la meta.
 
   return (
     <section className={styles.hub} aria-labelledby="sendero-title">
@@ -174,20 +174,11 @@ export default function Sendero({ challenges, displayName, totalPoints, locked }
         initial={rm ? false : "hidden"}
         animate={rm ? undefined : "show"}
       >
-        {/* META — Gran Premio (no jugable). Va primero en el DOM → con
-            column-reverse queda visualmente ARRIBA de todo. */}
-        <motion.div className={styles.goalRow} variants={rm ? undefined : nodeVariants}>
-          <Link href="/mundial/premios" className={styles.goalNode} aria-label="La meta: el Gran Premio. Ver premios">
-            <span className={styles.goalGlow} aria-hidden="true" />
-            <span className={styles.goalCrown} aria-hidden="true">
-              <Crown size={30} />
-            </span>
-            <span className={styles.goalText}>
-              <strong>El Gran Premio</strong>
-              <small>La meta: 1 año + camiseta</small>
-            </span>
-            <ChevronRight size={18} className={styles.goalChevron} aria-hidden="true" />
-          </Link>
+        {/* LARGADA — el inicio del camino. Primero en el DOM → con column-reverse
+            queda visualmente ABAJO de todo (desde acá se sube hacia la copa). */}
+        <motion.div className={styles.startRow} variants={rm ? undefined : nodeVariants} aria-hidden="true">
+          <span className={styles.startDot} />
+          <span className={styles.startLabel}>La largada</span>
         </motion.div>
 
         {/* Nodos del torneo: Final (arriba) … D1 (abajo). El cofre cuelga del D3. */}
@@ -217,10 +208,20 @@ export default function Sendero({ challenges, displayName, totalPoints, locked }
           );
         })}
 
-        {/* Cabecera del sendero (base, visualmente abajo de D1): punto de largada. */}
-        <motion.div className={styles.startRow} variants={rm ? undefined : nodeVariants} aria-hidden="true">
-          <span className={styles.startDot} />
-          <span className={styles.startLabel}>La largada</span>
+        {/* META — Gran Premio (no jugable). Último en el DOM → con column-reverse
+            queda visualmente ARRIBA de todo (la copa, el final del camino). */}
+        <motion.div className={styles.goalRow} variants={rm ? undefined : nodeVariants}>
+          <Link href="/mundial/premios" className={styles.goalNode} aria-label="La meta: el Gran Premio. Ver premios">
+            <span className={styles.goalGlow} aria-hidden="true" />
+            <span className={styles.goalCrown} aria-hidden="true">
+              <Crown size={30} />
+            </span>
+            <span className={styles.goalText}>
+              <strong>El Gran Premio</strong>
+              <small>La meta: 1 año + camiseta</small>
+            </span>
+            <ChevronRight size={18} className={styles.goalChevron} aria-hidden="true" />
+          </Link>
         </motion.div>
       </motion.div>
     </section>
