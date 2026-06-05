@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
-  Ticket, MessageCircle, ChevronRight, ChevronLeft, PartyPopper,
+  Ticket, KeyRound, LogIn, ChevronRight, ChevronLeft, PartyPopper,
   Search, Check, Target, Trophy, CheckCircle2,
 } from "lucide-react";
 import shell from "../Shell.module.css";
@@ -15,10 +15,10 @@ import {
   PENDING_MATCH_KEY, outcomeFromScore, type PendingMatch,
 } from "@/lib/prode/matchOfDay";
 import {
-  requestOtp, verifyAndRegister, completeProfile, submitQuiniela, submitMatchPrediction,
+  authWithPin, completeProfile, submitQuiniela, submitMatchPrediction,
 } from "../actions";
 
-type View = "register" | "otp" | "profile" | "quiniela" | "done";
+type View = "register" | "profile" | "quiniela" | "done";
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
 // Confeti de festejo al terminar (posiciones DETERMINISTAS por índice — nunca
@@ -63,8 +63,8 @@ export default function JugarClient({ locked, questions, teams, myState, matchOf
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
-  const [code, setCode] = useState("");
-  const [devCode, setDevCode] = useState<string | undefined>();
+  const [pin, setPin] = useState("");
+  const [authMode, setAuthMode] = useState<"register" | "login">("register");
   const [displayName, setDisplayName] = useState(myState?.display_name ?? "");
 
   // perfil
@@ -150,27 +150,41 @@ export default function JugarClient({ locked, questions, teams, myState, matchOf
   }, [registered, matchOfDay]);
 
   // ---------- handlers ----------
-  function onRequestOtp() {
+  function afterAuth(data: { displayName?: string; joinedLeague?: string | null }) {
+    if (data.displayName) setDisplayName(data.displayName);
+    if (data.joinedLeague) setJoinedLeagueMsg(`¡Te uniste a la liga "${data.joinedLeague}"! 🤝`);
+    setRegistered(true);
+    setView("profile");
+  }
+
+  function onRegister() {
     setError(null);
     if (firstName.trim().length < 2) return setError("Ingresá tu nombre");
     if (phone.replace(/\D/g, "").length < 8) return setError("Ingresá un teléfono válido");
+    if (!/^\d{4}$/.test(pin)) return setError("Elegí un PIN de 4 dígitos");
     run(async () => {
-      const r = await requestOtp({ phone });
+      const r = await authWithPin({ phone, pin, firstName, lastName });
       if (!r.ok) { setError(r.error); return; }
-      setDevCode(r.data.devCode);
-      setView("otp");
+      if (r.data.needName) { setError("Completá tu nombre para crear la cuenta"); return; }
+      afterAuth(r.data);
     });
   }
 
-  function onVerify() {
+  function onLogin() {
     setError(null);
+    if (phone.replace(/\D/g, "").length < 8) return setError("Ingresá tu teléfono");
+    if (!/^\d{4}$/.test(pin)) return setError("El PIN son 4 dígitos");
     run(async () => {
-      const r = await verifyAndRegister({ firstName, lastName, phone, code });
+      const r = await authWithPin({ phone, pin });
       if (!r.ok) { setError(r.error); return; }
-      setDisplayName(r.data.displayName);
-      if (r.data.joinedLeague) setJoinedLeagueMsg(`¡Te uniste a la liga "${r.data.joinedLeague}"! 🤝`);
-      setRegistered(true);
-      setView("profile");
+      if (r.data.needName) {
+        setAuthMode("register");
+        setError("No encontramos una cuenta con ese teléfono. Creá la tuya 👇");
+        return;
+      }
+      // Jugador que vuelve: recargamos para hidratar su estado (perfil/quiniela ya
+      // hechos) y caer en la vista correcta. La sesión ya quedó seteada en el server.
+      window.location.reload();
     });
   }
 
@@ -237,11 +251,11 @@ export default function JugarClient({ locked, questions, teams, myState, matchOf
         )}
 
         <AnimatePresence mode="wait">
-          {view === "register" && (
+          {view === "register" && authMode === "register" && (
             <motion.div key="register" {...animate}>
               <h2 className={styles.stepTitle}>Sumate al Prode 🎰</h2>
               <p className={styles.stepSub}>
-                Entrá en 20 segundos. Te verificamos por WhatsApp para que nadie juegue por vos.
+                Creá tu cuenta en 20 segundos y elegí un PIN. Después entrás solo con el PIN, sin esperar códigos.
               </p>
               <div className={shell.row2}>
                 <div className={shell.field}>
@@ -257,42 +271,56 @@ export default function JugarClient({ locked, questions, teams, myState, matchOf
                 <label className={shell.label} htmlFor="jg-wpp">WhatsApp</label>
                 <input id="jg-wpp" className={shell.input} value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="351 555 5555" inputMode="tel" autoComplete="tel" />
               </div>
+              <div className={shell.field}>
+                <label className={shell.label} htmlFor="jg-pin">Elegí tu PIN (4 dígitos)</label>
+                <input
+                  id="jg-pin"
+                  className={`${shell.input} ${styles.otpInput}`}
+                  value={pin}
+                  onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                  placeholder="••••"
+                  inputMode="numeric"
+                  autoComplete="new-password"
+                  maxLength={4}
+                />
+              </div>
               {error && <p className={shell.error} role="alert">{error}</p>}
-              <button className={shell.btnPrimary} onClick={onRequestOtp} disabled={pending}>
-                {pending ? "Enviando…" : <>Recibir código <MessageCircle size={18} aria-hidden="true" /></>}
+              <button className={shell.btnPrimary} onClick={onRegister} disabled={pending}>
+                {pending ? "Entrando…" : <>Crear cuenta y entrar <KeyRound size={18} aria-hidden="true" /></>}
               </button>
-              <p className={shell.helper}>Te llega un código por WhatsApp. Es gratis y no compartimos tu número.</p>
+              <button className={shell.btnGhost} onClick={() => { setError(null); setPin(""); setAuthMode("login"); }}>
+                ¿Ya jugás? Entrá con tu PIN
+              </button>
             </motion.div>
           )}
 
-          {view === "otp" && (
-            <motion.div key="otp" {...animate}>
-              <h2 className={styles.stepTitle}>Tu código</h2>
-              <p className={styles.stepSub}>Te mandamos un código de 6 dígitos por WhatsApp al {phone}.</p>
+          {view === "register" && authMode === "login" && (
+            <motion.div key="login" {...animate}>
+              <h2 className={styles.stepTitle}>Entrá con tu PIN 🔑</h2>
+              <p className={styles.stepSub}>Poné tu teléfono y el PIN que elegiste cuando te sumaste.</p>
               <div className={shell.field}>
-                <label className={shell.srOnly} htmlFor="jg-otp">Código de 6 dígitos</label>
+                <label className={shell.label} htmlFor="jg-wpp-l">WhatsApp</label>
+                <input id="jg-wpp-l" className={shell.input} value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="351 555 5555" inputMode="tel" autoComplete="tel" />
+              </div>
+              <div className={shell.field}>
+                <label className={shell.label} htmlFor="jg-pin-l">PIN (4 dígitos)</label>
                 <input
-                  id="jg-otp"
+                  id="jg-pin-l"
                   className={`${shell.input} ${styles.otpInput}`}
-                  value={code}
-                  onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                  placeholder="••••••"
+                  value={pin}
+                  onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                  placeholder="••••"
                   inputMode="numeric"
-                  autoComplete="one-time-code"
-                  maxLength={6}
+                  autoComplete="current-password"
+                  maxLength={4}
                 />
               </div>
-              {devCode && (
-                <div className={shell.devCode}>
-                  Modo prueba (WhatsApp no configurado): tu código es <strong>{devCode}</strong>
-                </div>
-              )}
               {error && <p className={shell.error} role="alert">{error}</p>}
-              <button className={shell.btnPrimary} onClick={onVerify} disabled={pending || code.length !== 6}>
-                {pending ? "Verificando…" : "Verificar y entrar"}
+              <button className={shell.btnPrimary} onClick={onLogin} disabled={pending || pin.length !== 4}>
+                {pending ? "Entrando…" : <>Entrar <LogIn size={18} aria-hidden="true" /></>}
               </button>
-              <button className={shell.btnGhost} onClick={() => { setError(null); setView("register"); }}>
-                Cambiar número
+              <button className={shell.btnGhost} onClick={() => { setError(null); setPin(""); setAuthMode("register"); }}>
+                ¿Primera vez? Creá tu cuenta
               </button>
             </motion.div>
           )}

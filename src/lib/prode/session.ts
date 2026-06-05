@@ -8,7 +8,7 @@ import { env } from "@/lib/env";
  * Actions leen el id de acá (nunca del input) para autorizar mutaciones.
  */
 const COOKIE = "prode_session";
-const MAX_AGE = 60 * 60 * 24 * 60; // 60 días
+const MAX_AGE = 60 * 60 * 24 * 180; // 180 días — el login es por PIN, la sesión persiste largo
 
 function secret(): string {
   const s = env.PRODE_SESSION_SECRET;

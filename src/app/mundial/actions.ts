@@ -2,7 +2,6 @@
 
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { sendOtpWhatsApp } from "@/lib/prode/whatsapp";
 import {
   setProdeSession,
   getProdeParticipantId,
@@ -24,7 +23,7 @@ const phoneSchema = z
   .trim()
   .transform((s) => s.replace(/\D/g, ""))
   .pipe(z.string().min(8, "Teléfono inválido").max(15));
-const codeSchema = z.string().trim().regex(/^\d{6}$/, "El código son 6 dígitos");
+const pinSchema = z.string().trim().regex(/^\d{4}$/, "El PIN son 4 dígitos");
 
 type RpcResult = { ok: boolean; error?: string } & Record<string, unknown>;
 
@@ -38,38 +37,49 @@ async function callRpc(fn: string, args: Record<string, unknown>): Promise<RpcRe
   return (data as RpcResult) ?? { ok: false, error: "Sin respuesta" };
 }
 
-/** Paso 1: pedir OTP por WhatsApp. */
-export async function requestOtp(input: { phone: string }): Promise<Result<{ sent: boolean; devCode?: string }>> {
+/**
+ * Login/registro por PIN (sin OTP, sin mensajes).
+ * - Si el teléfono no existe y no vino nombre → { needName:true } (la UI revela el nombre).
+ * - Si existe → verifica el PIN (o lo fija si nunca tuvo / fue reseteado).
+ * - Si no existe + vino nombre → crea cliente+participante, da el cupón y une a la
+ *   liga de la casa. En todos los casos de éxito real setea la sesión.
+ */
+export async function authWithPin(input: {
+  phone: string;
+  pin: string;
+  firstName?: string;
+  lastName?: string;
+}): Promise<
+  Result<{
+    needName?: boolean;
+    participantId?: string;
+    displayName?: string;
+    isNew?: boolean;
+    joinedLeague?: string | null;
+  }>
+> {
   const phone = phoneSchema.safeParse(input.phone);
   if (!phone.success) return fail(phone.error.issues[0]?.message ?? "Teléfono inválido");
+  const pin = pinSchema.safeParse(input.pin);
+  if (!pin.success) return fail(pin.error.issues[0]?.message ?? "PIN inválido");
 
-  const res = await callRpc("prode_request_otp", { p_phone: phone.data });
-  if (!res.ok) return fail(res.error ?? "No se pudo enviar el código");
+  const first = (input.firstName ?? "").trim();
+  const last = (input.lastName ?? "").trim();
+  if (first) {
+    const n = nameSchema.safeParse(first);
+    if (!n.success) return fail(n.error.issues[0]?.message ?? "Nombre inválido");
+  }
 
-  const code = String(res.code ?? "");
-  const wa = await sendOtpWhatsApp(phone.data, code);
-  return ok({ sent: wa.sent, devCode: wa.devCode });
-}
-
-/** Paso 2: verificar OTP + crear/linkear cliente y participante. Setea la sesión. */
-export async function verifyAndRegister(input: {
-  firstName: string;
-  lastName: string;
-  phone: string;
-  code: string;
-}): Promise<Result<{ participantId: string; displayName: string; isNew: boolean; joinedLeague: string | null }>> {
-  const parsed = z
-    .object({ firstName: nameSchema, lastName: z.string().trim().max(60).optional().default(""), phone: phoneSchema, code: codeSchema })
-    .safeParse(input);
-  if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "Datos inválidos");
-
-  const res = await callRpc("prode_verify_and_register", {
-    p_phone: parsed.data.phone,
-    p_first_name: parsed.data.firstName,
-    p_last_name: parsed.data.lastName,
-    p_code: parsed.data.code,
+  const res = await callRpc("prode_auth_with_pin", {
+    p_phone: phone.data,
+    p_pin: pin.data,
+    p_first_name: first || null,
+    p_last_name: last || null,
   });
-  if (!res.ok) return fail(res.error ?? "No se pudo verificar el código");
+  if (!res.ok) return fail(res.error ?? "No se pudo entrar");
+
+  // Teléfono nuevo y sin nombre: la UI debe pedir el nombre (no hay sesión todavía).
+  if (res.need_name) return ok({ needName: true });
 
   const participantId = String(res.participant_id);
   await setProdeSession(participantId);
