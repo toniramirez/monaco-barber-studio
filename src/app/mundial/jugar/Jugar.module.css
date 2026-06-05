@@ -272,6 +272,44 @@
   margin-top: 0;
 }
 
+/* Link "volver al camino" (sobre el header del desafío) */
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  align-self: flex-start;
+  margin-bottom: 0.5rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  transition: color 0.2s ease;
+}
+.backLink:hover { color: var(--celeste); }
+.backLink:focus-visible {
+  outline: 2px solid var(--celeste);
+  outline-offset: 2px;
+  border-radius: var(--radius-pill);
+}
+
+/* Foco visible en las opciones de equipo/choice (teclado) */
+.teamOption:focus-visible,
+.option:focus-visible {
+  outline: 2px solid var(--celeste);
+  outline-offset: 2px;
+}
+
+/* Nota de "ya cerró" dentro de la quiniela */
+.lockedNote {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.8rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+.lockedNote svg { color: var(--gold); }
+
 /* ───────────────────────── Reduced motion ───────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .qBarFill { transition: none; }

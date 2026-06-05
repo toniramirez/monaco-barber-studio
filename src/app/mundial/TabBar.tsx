@@ -2,14 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Ticket, Trophy, User } from "lucide-react";
+import { Home, Swords, Gift, Trophy, User } from "lucide-react";
 import shell from "./Shell.module.css";
 
 const TABS = [
   { href: "/mundial", label: "Inicio", Icon: Home },
-  { href: "/mundial/jugar", label: "Jugar", Icon: Ticket },
+  { href: "/mundial/jugar", label: "Jugar", Icon: Swords },
+  { href: "/mundial/premios", label: "Premios", Icon: Gift },
   { href: "/mundial/tabla", label: "Tabla", Icon: Trophy },
-  { href: "/mundial/cuenta", label: "Mi cuenta", Icon: User },
+  { href: "/mundial/cuenta", label: "Cuenta", Icon: User },
 ] as const;
 
 /** Barra inferior estilo app. El tab activo se deriva del pathname. */

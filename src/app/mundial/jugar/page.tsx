@@ -1,22 +1,21 @@
-import { Ticket } from "lucide-react";
+import { Swords } from "lucide-react";
 import shell from "../Shell.module.css";
-import JugarClient from "./JugarClient";
-import { getTournament, getQuestions, getTeams, getMatchOfTheDay } from "@/lib/prode/data";
-import { teamEsName } from "@/lib/prode/countries";
+import Onboarding from "../Onboarding";
+import Sendero from "../Sendero";
+import { getTournament } from "@/lib/prode/data";
+import { getChallengesState } from "@/lib/prode/challenges";
 import { getMyState } from "../actions";
 
 export const dynamic = "force-dynamic";
 
-/** ¿Ya cerró la quiniela? Helper a nivel de módulo (no es render de componente,
- * así que leer la hora acá no rompe la regla de pureza de hooks). */
 function isPast(iso: string): boolean {
   return new Date(iso).getTime() <= Date.now();
 }
 
 /**
- * Pantalla "Jugar": el embudo de registro (registro → OTP → perfil) + el editor
- * de Quiniela. Server Component: resuelve datos del torneo y la sesión, y los
- * pasa al cliente. La tabla y las ligas viven en otras pestañas.
+ * Jugar — el hub "Camino al Título". Si el jugador no está registrado, muestra
+ * el alta (Onboarding, flujo de PIN preservado). Si está, muestra el sendero de
+ * Desafíos. El play de cada desafío vive en /mundial/jugar/[slug].
  */
 export default async function JugarPage() {
   const tournament = await getTournament();
@@ -25,7 +24,7 @@ export default async function JugarPage() {
     return (
       <main className={shell.content}>
         <div className={shell.gate}>
-          <Ticket className={shell.gateIcon} size={44} aria-hidden="true" />
+          <Swords className={shell.gateIcon} size={44} aria-hidden="true" />
           <h1 className={shell.sectionTitle}>
             El Prode todavía no <span className={shell.em}>arrancó</span>
           </h1>
@@ -37,33 +36,27 @@ export default async function JugarPage() {
     );
   }
 
-  const [questions, teams, myState, matchOfDay] = await Promise.all([
-    getQuestions(tournament.id),
-    getTeams(tournament.id),
-    getMyState(),
-    getMatchOfTheDay(tournament.id),
-  ]);
-
+  const myState = await getMyState();
   const lockAt = tournament.predictions_lock_at ?? tournament.starts_at;
   const locked = isPast(lockAt);
 
+  if (!myState) {
+    return (
+      <main className={shell.content}>
+        <Onboarding />
+      </main>
+    );
+  }
+
+  const challenges = await getChallengesState(tournament.id, myState);
+
   return (
     <main className={shell.content}>
-      <JugarClient
+      <Sendero
+        challenges={challenges}
+        displayName={myState.display_name}
+        totalPoints={myState.total_points}
         locked={locked}
-        questions={questions}
-        teams={teams}
-        myState={myState}
-        matchOfDay={
-          matchOfDay
-            ? {
-                id: matchOfDay.id,
-                lockAt: matchOfDay.kickoff_at,
-                homeName: teamEsName(matchOfDay.home),
-                awayName: teamEsName(matchOfDay.away),
-              }
-            : null
-        }
       />
     </main>
   );

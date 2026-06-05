@@ -1,0 +1,75 @@
+import { redirect, notFound } from "next/navigation";
+import MatchDeck from "./MatchDeck";
+import QuinielaPlay from "./QuinielaPlay";
+import { getTournament, getQuestions, getTeams } from "@/lib/prode/data";
+import { getChallengeBySlug, getChallengeMatches } from "@/lib/prode/challenges";
+import { getMyState } from "../../actions";
+import { getProdeParticipantId } from "@/lib/prode/session";
+
+export const dynamic = "force-dynamic";
+
+function isPast(iso: string): boolean {
+  return new Date(iso).getTime() <= Date.now();
+}
+
+function num(v: unknown, d: number): number {
+  return typeof v === "number" ? v : Number(v) || d;
+}
+
+/**
+ * Play de un Desafío. Slug → desafío (challenges.ts). Gatea sesión (si no hay,
+ * manda a registrarse). Dos mecánicas:
+ *  - kind="matches": la consola de marcador (MatchDeck), un partido a la vez.
+ *  - kind="quiniela": la Gran Quiniela (QuinielaPlay), las 6 preguntas grandes.
+ */
+export default async function ChallengePage({
+  params,
+}: {
+  params: Promise<{ challenge: string }>;
+}) {
+  const { challenge: slug } = await params;
+  const challenge = getChallengeBySlug(slug);
+  if (!challenge) notFound();
+
+  const [tournament, pid] = await Promise.all([getTournament(), getProdeParticipantId()]);
+  if (!tournament) notFound();
+  // Sin sesión: hay que registrarse primero (el hub muestra el alta).
+  if (!pid) redirect("/mundial/jugar");
+
+  const myState = await getMyState();
+  const lockAt = tournament.predictions_lock_at ?? tournament.starts_at;
+  const lockedAll = isPast(lockAt);
+
+  if (challenge.kind === "quiniela") {
+    const [questions, teams] = await Promise.all([
+      getQuestions(tournament.id),
+      getTeams(tournament.id),
+    ]);
+    return (
+      <QuinielaPlay
+        questions={questions}
+        teams={teams}
+        myState={myState}
+        locked={lockedAll}
+        rewardLabel={challenge.reward.label}
+      />
+    );
+  }
+
+  const matches = await getChallengeMatches(tournament.id, challenge, myState);
+  const settings = (tournament.settings ?? {}) as Record<string, unknown>;
+
+  return (
+    <MatchDeck
+      challengeTitle={challenge.title}
+      challengeSubtitle={challenge.subtitle}
+      rewardLabel={challenge.reward.label}
+      matches={matches}
+      outcomePoints={num(settings.match_outcome_points, 3)}
+      exactBonus={num(settings.match_exact_bonus, 2)}
+      featuredMultiplier={num(settings.featured_multiplier, 2)}
+      participantId={pid}
+      lockedAll={lockedAll}
+    />
+  );
+}

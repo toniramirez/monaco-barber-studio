@@ -6,8 +6,6 @@ import {
   type ProdeTeam,
   type ProdeTeamLite,
   type ProdeQuestion,
-  type ProdeMatch,
-  type MatchOfTheDay,
   type LeaderboardRow,
   type ParticipantSummary,
   type ProdeReward,
@@ -47,81 +45,6 @@ export async function getQuestions(tournamentId: string): Promise<ProdeQuestion[
     .eq("tournament_id", tournamentId)
     .order("sort_order", { ascending: true });
   return (data as ProdeQuestion[]) ?? [];
-}
-
-export async function getFeaturedMatch(tournamentId: string): Promise<ProdeMatch | null> {
-  const admin = createAdminClient();
-  const { data } = await admin
-    .from("prode_matches")
-    .select(
-      "id,stage,group_label,kickoff_at,status,home_team_id,away_team_id,home_team_label,away_team_label,home_score,away_score,is_featured,venue",
-    )
-    .eq("tournament_id", tournamentId)
-    .eq("is_featured", true)
-    .gt("kickoff_at", new Date().toISOString())
-    .order("kickoff_at", { ascending: true })
-    .limit(1)
-    .maybeSingle();
-  return (data as ProdeMatch) ?? null;
-}
-
-/**
- * El "Partido del Día": el partido destacado vigente (is_featured) o, si no hay
- * ninguno, el próximo a jugarse. Resuelve ambos equipos (bandera/código) y la
- * config de puntos del torneo. Devuelve null si no quedan partidos por jugar.
- */
-export async function getMatchOfTheDay(tournamentId: string): Promise<MatchOfTheDay | null> {
-  const admin = createAdminClient();
-
-  const { data: match } = await admin
-    .from("prode_matches")
-    .select(
-      "id,stage,group_label,kickoff_at,status,home_team_id,away_team_id,home_team_label,away_team_label,is_featured",
-    )
-    .eq("tournament_id", tournamentId)
-    .eq("status", "scheduled")
-    .gt("kickoff_at", new Date().toISOString())
-    // destacado primero; entre iguales, el más próximo a jugarse
-    .order("is_featured", { ascending: false })
-    .order("kickoff_at", { ascending: true })
-    .limit(1)
-    .maybeSingle();
-
-  if (!match) return null;
-
-  const ids = [match.home_team_id, match.away_team_id].filter(Boolean) as string[];
-  const teamById = new Map<string, ProdeTeamLite>();
-  if (ids.length > 0) {
-    const { data: teams } = await admin
-      .from("prode_teams")
-      .select("id,name,short_name,code,flag_url")
-      .in("id", ids);
-    (teams as ProdeTeamLite[] | null)?.forEach((t) => teamById.set(t.id, t));
-  }
-
-  const { data: t } = await admin
-    .from("prode_tournament")
-    .select("settings")
-    .eq("id", tournamentId)
-    .maybeSingle();
-  const settings = (t?.settings ?? {}) as Record<string, unknown>;
-  const num = (v: unknown, d: number) => (typeof v === "number" ? v : Number(v) || d);
-
-  return {
-    id: match.id,
-    stage: match.stage,
-    group_label: match.group_label,
-    kickoff_at: match.kickoff_at,
-    status: match.status,
-    is_featured: match.is_featured,
-    home: match.home_team_id ? teamById.get(match.home_team_id) ?? null : null,
-    away: match.away_team_id ? teamById.get(match.away_team_id) ?? null : null,
-    home_label: match.home_team_label,
-    away_label: match.away_team_label,
-    outcome_points: num(settings.match_outcome_points, 3),
-    exact_bonus: num(settings.match_exact_bonus, 2),
-    featured_multiplier: num(settings.featured_multiplier, 2),
-  };
 }
 
 export async function getLeaderboard(

@@ -144,6 +144,88 @@
   animation: rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.5s backwards;
 }
 
+/* ── Home hero-only: centrado vertical en el viewport ── */
+.homeMain {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: calc(100svh - var(--tabbar-h) - 3.2rem);
+}
+
+/* Arena: la pelota reventando la red, tenue, fundida hacia los bordes.
+   Contenedor enmascarado; la imagen va por next/image (optimizada). */
+.heroArena {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  -webkit-mask-image: radial-gradient(120% 80% at 50% 36%, #000 0%, rgba(0, 0, 0, 0.5) 52%, transparent 78%);
+  mask-image: radial-gradient(120% 80% at 50% 36%, #000 0%, rgba(0, 0, 0, 0.5) 52%, transparent 78%);
+}
+.heroArenaImg {
+  object-fit: cover;
+  object-position: center 18%;
+  opacity: 0.08;
+  mix-blend-mode: luminosity;
+}
+
+/* Link secundario "mirá los premios" */
+.prizesPeek {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 1.1rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  transition: color 0.2s ease;
+  animation: rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.5s backwards;
+}
+.prizesPeek svg {
+  color: var(--gold);
+}
+.prizesPeek:hover {
+  color: var(--gold);
+}
+.prizesPeek:focus-visible {
+  outline: 2px solid var(--celeste);
+  outline-offset: 3px;
+  border-radius: var(--radius-pill);
+}
+
+/* Marquee de banderas (dos pistas idénticas que se desplazan en loop seamless) */
+.flagMarquee {
+  position: relative;
+  margin-top: 1.6rem;
+  width: 100%;
+  max-width: 360px;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent);
+  animation: rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.56s backwards;
+}
+.flagTrack {
+  display: flex;
+  width: max-content;
+  animation: marquee 26s linear infinite;
+}
+.flagTrack span {
+  flex: 0 0 auto;
+  padding-right: 0.5rem;
+  font-size: 1.35rem;
+  letter-spacing: 0.45rem;
+  white-space: nowrap;
+}
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
 /* ─────────────────────────── Cabecera de sección ─────────────────────────── */
 .sectionHead {
   text-align: center;
@@ -341,8 +423,23 @@
   .heroMeta,
   .heroCta,
   .ctaNote,
-  .flagStrip {
+  .flagStrip,
+  .prizesPeek,
+  .flagMarquee,
+  .flagTrack {
     animation: none;
+  }
+  .flagMarquee {
+    -webkit-mask-image: none;
+    mask-image: none;
+    text-align: center;
+  }
+  .flagTrack {
+    justify-content: center;
+    width: 100%;
+  }
+  .flagTrack span:last-child {
+    display: none;
   }
   .prizeFeatured::after {
     display: none;

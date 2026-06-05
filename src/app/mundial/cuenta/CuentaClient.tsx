@@ -257,7 +257,7 @@ export default function CuentaClient({ myState, questions, teams, rewards, edita
         {answered.length === 0 ? (
           <div className={styles.emptyQuiniela}>
             <p className={shell.helper}>Todavía no armaste tu Quiniela.</p>
-            <Link href="/mundial/jugar" className={shell.btnPrimary}>
+            <Link href="/mundial/jugar/quiniela" className={shell.btnPrimary}>
               Armar mi Quiniela <ChevronRight size={18} aria-hidden="true" />
             </Link>
           </div>
@@ -286,7 +286,7 @@ export default function CuentaClient({ myState, questions, teams, rewards, edita
               })}
             </ul>
             {editable ? (
-              <Link href="/mundial/jugar" className={`${shell.btnGhost} ${styles.editBtn}`}>
+              <Link href="/mundial/jugar/quiniela" className={`${shell.btnGhost} ${styles.editBtn}`}>
                 Editar mi Quiniela <ChevronRight size={16} aria-hidden="true" />
               </Link>
             ) : (

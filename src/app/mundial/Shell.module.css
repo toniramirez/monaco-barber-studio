@@ -120,13 +120,14 @@
 .tab {
   position: relative;
   flex: 1 1 0;
-  max-width: 120px;
+  max-width: 104px;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 0.18rem;
-  padding: 0.5rem 0.2rem 0.4rem;
+  padding: 0.5rem 0.15rem 0.4rem;
   color: var(--text-secondary);
   background: transparent;
   border: none;
@@ -142,9 +143,10 @@
   transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .tabLabel {
-  font-size: 0.64rem;
+  font-size: 0.62rem;
   font-weight: 700;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
 }
 .tabActive { color: var(--gold); }
 .tabActive .tabIcon {

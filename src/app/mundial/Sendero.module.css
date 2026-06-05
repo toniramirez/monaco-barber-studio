@@ -1,0 +1,617 @@
+/* ════════════════════════════════════════════════════════════════════════
+   "El Camino al Título" — sendero vertical de Desafíos (estilo mapa
+   Duolingo/Candy-Crush). Layout propio: el header con progreso global, el
+   track (línea + nodos serpenteantes), la ficha del jugador y el cofre lateral
+   de La Gran Quiniela. Los primitivos (pills, shineTitle, em, foco) vienen del
+   Shell. Colores SIEMPRE vía var() de la marca. Mobile-first 360px sin
+   overflow horizontal.
+   ════════════════════════════════════════════════════════════════════════ */
+
+.hub {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+/* ───────────────────────── Header ───────────────────────── */
+.header {
+  text-align: left;
+}
+.headTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+.greeting {
+  font-size: clamp(1.4rem, 6vw, 1.8rem);
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  margin: 0;
+}
+.coins {
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+.coins strong { font-weight: 900; }
+.headSub {
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+  line-height: 1.4;
+  margin: 0.35rem 0 0;
+}
+
+/* Barra de progreso global */
+.progress {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.95rem;
+}
+.progressTrack {
+  position: relative;
+  flex: 1 1 auto;
+  height: 10px;
+  border-radius: var(--radius-pill);
+  background: rgba(0, 0, 0, 0.42);
+  border: 1px solid var(--card-border);
+  overflow: hidden;
+}
+.progressFill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(90deg, var(--celeste), var(--gold) 60%, var(--gold-deep));
+  box-shadow: 0 0 14px rgba(233, 196, 106, 0.5);
+}
+.progressLabel {
+  flex-shrink: 0;
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ───────────────────────── Track ───────────────────────── */
+/* column-reverse: el primero del DOM (la meta) queda ARRIBA; el último (la
+   largada) queda ABAJO. Así el Desafío 1 cae al fondo y la Final cerca de la
+   meta. El stagger del framer entra desde el de más abajo. */
+.track {
+  display: flex;
+  flex-direction: column-reverse;
+  position: relative;
+  padding: 0.4rem 0 0.2rem;
+}
+
+/* ── Fila genérica de nodo: eje central, serpenteo izq/der ── */
+.row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 116px;
+  padding: 0 0.2rem;
+}
+.rowLeft { flex-direction: row; }
+.rowRight { flex-direction: row-reverse; }
+
+/* Conector vertical: la "cuerda" que une cada nodo con el de arriba. Se ancla
+   al centro del nodo (~38px = radio del nodo) y sube hasta la fila siguiente. */
+.connector {
+  position: absolute;
+  bottom: 50%;
+  height: 116px;
+  width: 6px;
+  border-radius: var(--radius-pill);
+  background: repeating-linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.16) 0 9px,
+    transparent 9px 17px
+  );
+  z-index: 0;
+}
+.rowLeft .connector { left: 38px; transform: translateX(-50%); }
+.rowRight .connector { right: 38px; transform: translateX(50%); }
+/* Tramo completado: cuerda dorada continua y luminosa. */
+.connectorDone {
+  background: linear-gradient(180deg, var(--gold-deep), var(--gold));
+  box-shadow: 0 0 12px rgba(233, 196, 106, 0.45);
+}
+
+/* Bloque nodo + info */
+.nodeWrap {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.rowRight .nodeWrap { flex-direction: row-reverse; }
+
+.nodeCol {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 76px;
+}
+
+/* ── El nodo circular ── */
+.node {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  text-decoration: none;
+  background: rgba(0, 0, 0, 0.32);
+  border: 3px solid var(--card-border);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45), inset 0 2px 6px rgba(255, 255, 255, 0.04);
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.2s ease, box-shadow 0.25s ease, background 0.25s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+a.node:hover { transform: translateY(-3px) scale(1.04); }
+a.node:active { transform: scale(0.95); }
+.node:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--graphite), 0 0 0 6px var(--celeste);
+}
+
+.nodeFace {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+.emoji {
+  font-size: 1.9rem;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+/* Número de orden, colgando abajo a la derecha del nodo */
+.nodeIndex {
+  position: absolute;
+  bottom: -6px;
+  right: -4px;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 5px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-pill);
+  font-size: 0.78rem;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+  background: rgba(10, 10, 12, 0.92);
+  border: 1px solid var(--card-border);
+  z-index: 2;
+}
+
+/* ── Estado: open (jugable, sin empezar) ── */
+.nodeOpen {
+  border-color: rgba(121, 192, 242, 0.65);
+  background: linear-gradient(180deg, rgba(121, 192, 242, 0.16), rgba(0, 0, 0, 0.32));
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(121, 192, 242, 0.3),
+    0 0 22px rgba(121, 192, 242, 0.22);
+  animation: nodePulse 2.6s ease-in-out infinite;
+}
+@keyframes nodePulse {
+  0%, 100% { box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(121, 192, 242, 0.3), 0 0 22px rgba(121, 192, 242, 0.2); }
+  50% { box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45), 0 0 0 2px rgba(121, 192, 242, 0.5), 0 0 30px rgba(121, 192, 242, 0.4); }
+}
+
+/* ── Estado: in_progress (parcial) — borde dorado + anillo conic ── */
+.nodeProgress {
+  border-color: rgba(233, 196, 106, 0.55);
+  background: linear-gradient(180deg, rgba(233, 196, 106, 0.16), rgba(0, 0, 0, 0.32));
+}
+/* Anillo de progreso por conic-gradient. El centro queda enmascarado con un
+   "agujero" para que se vea como un arco alrededor del nodo. */
+.ring {
+  position: absolute;
+  inset: -7px;
+  border-radius: 50%;
+  background: conic-gradient(var(--gold) var(--pct, 0%), rgba(255, 255, 255, 0.1) var(--pct, 0%));
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 6px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 6px));
+  filter: drop-shadow(0 0 8px rgba(233, 196, 106, 0.4));
+  z-index: 0;
+}
+
+/* ── Estado: completed (relleno dorado + check) ── */
+.nodeCompleted {
+  border-color: var(--gold);
+  background: linear-gradient(160deg, #f6dd92, var(--gold) 55%, var(--gold-deep));
+  box-shadow: 0 12px 30px rgba(233, 196, 106, 0.32), 0 0 0 1px rgba(233, 196, 106, 0.5);
+}
+.checkIcon { color: #14110a; filter: drop-shadow(0 1px 2px rgba(255, 255, 255, 0.4)); }
+
+/* ── Estado: locked (grafito desaturado) ── */
+.nodeLocked {
+  border-color: rgba(255, 255, 255, 0.07);
+  background: rgba(0, 0, 0, 0.3);
+  opacity: 0.5;
+  filter: grayscale(0.4);
+  cursor: not-allowed;
+}
+.lockIcon { color: var(--text-secondary); }
+
+/* ── Ficha del jugador (moneda con inicial) sobre el nodo ── */
+.token {
+  position: absolute;
+  top: -28px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.5));
+  pointer-events: none;
+}
+.tokenFace {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  font-size: 0.95rem;
+  font-weight: 900;
+  color: #14110a;
+  background: radial-gradient(circle at 35% 30%, #fff4cf, #f6dd92 45%, var(--gold-deep));
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  box-shadow: inset 0 -3px 6px rgba(0, 0, 0, 0.25), 0 0 14px rgba(233, 196, 106, 0.6);
+}
+/* punta inferior (tipo "pin de mapa") */
+.token::after {
+  content: "";
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 9px;
+  height: 9px;
+  background: var(--gold-deep);
+  border-radius: 0 0 2px 0;
+}
+
+/* ───────────────────────── Cartel del desafío ───────────────────────── */
+.info {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+}
+.rowRight .info { text-align: right; align-items: flex-end; }
+.infoTop {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.rowRight .infoTop { flex-direction: row-reverse; }
+.infoShort {
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+.infoCount {
+  font-size: 0.64rem;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  color: var(--gold);
+  background: var(--gold-soft);
+  border: 1px solid rgba(233, 196, 106, 0.28);
+  padding: 0.06rem 0.4rem;
+  border-radius: var(--radius-pill);
+}
+.infoTitle {
+  font-size: 1.02rem;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  margin: 0;
+}
+.infoSub {
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: var(--text-secondary);
+  margin: 0;
+}
+.infoFoot {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.3rem;
+}
+.rowRight .infoFoot { flex-direction: row-reverse; }
+
+/* Badge de recompensa por tier */
+.reward {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  padding: 0.26rem 0.6rem;
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+}
+.reward svg { flex-shrink: 0; }
+.rewardEmoji { font-size: 0.85rem; line-height: 1; }
+.reward_month {
+  color: var(--gold);
+  background: var(--gold-soft);
+  border: 1px solid rgba(233, 196, 106, 0.3);
+}
+.reward_jersey {
+  color: var(--celeste);
+  background: var(--celeste-soft);
+  border: 1px solid rgba(121, 192, 242, 0.32);
+}
+.reward_roulette {
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--card-border);
+}
+.reward_special {
+  color: #14110a;
+  background: linear-gradient(135deg, #f6dd92, var(--gold-deep));
+  border: 1px solid rgba(233, 196, 106, 0.5);
+}
+/* Recompensa en silueta cuando el desafío está bloqueado */
+.rewardLocked {
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px dashed var(--card-border);
+  opacity: 0.7;
+}
+.rewardLocked svg, .rewardLocked .rewardEmoji { opacity: 0.5; }
+
+/* CTA implícito */
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.1rem;
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: var(--celeste);
+}
+.cta svg { flex-shrink: 0; }
+.ctaLocked { color: var(--text-secondary); }
+
+/* ───────────────────────── Cofre lateral (Gran Quiniela) ───────────────────────── */
+.chest {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  width: 132px;
+  text-decoration: none;
+  transform: translateY(-50%);
+}
+/* Sale hacia el lado OPUESTO al nodo, para no taparlo. */
+.chestRight { right: -4px; }
+.chestLeft { left: -4px; }
+.chestBranch {
+  width: 2px;
+  height: 14px;
+  background: linear-gradient(180deg, transparent, var(--gold));
+}
+.chestBox {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 62px;
+  height: 56px;
+  border-radius: 14px;
+  background: linear-gradient(160deg, #f6dd92, var(--gold) 55%, var(--gold-deep));
+  border: 2px solid rgba(255, 255, 255, 0.45);
+  box-shadow: 0 12px 26px rgba(233, 196, 106, 0.34), inset 0 2px 4px rgba(255, 255, 255, 0.4);
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+}
+.chest:hover .chestBox { transform: translateY(-3px) scale(1.05); box-shadow: 0 16px 34px rgba(233, 196, 106, 0.5); }
+.chest:active .chestBox { transform: scale(0.95); }
+.chest:focus-visible { outline: none; }
+.chest:focus-visible .chestBox { box-shadow: 0 0 0 3px var(--graphite), 0 0 0 6px var(--celeste); }
+.chestGlow {
+  position: absolute;
+  inset: -6px;
+  border-radius: 18px;
+  background: radial-gradient(circle, rgba(233, 196, 106, 0.5), transparent 70%);
+  filter: blur(6px);
+  z-index: -1;
+  animation: chestGlow 2.8s ease-in-out infinite;
+}
+@keyframes chestGlow {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 0.85; }
+}
+.chestIcon { color: #14110a; filter: drop-shadow(0 1px 2px rgba(255, 255, 255, 0.4)); }
+.chestPct {
+  position: absolute;
+  bottom: -7px;
+  font-size: 0.6rem;
+  font-weight: 900;
+  color: #14110a;
+  background: #fff4cf;
+  border: 1px solid var(--gold-deep);
+  padding: 0.02rem 0.32rem;
+  border-radius: var(--radius-pill);
+  font-variant-numeric: tabular-nums;
+}
+.chestDone {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  color: var(--gold);
+  background: var(--graphite);
+  border: 1px solid rgba(233, 196, 106, 0.5);
+}
+.chestText {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  text-align: center;
+}
+.chestText strong {
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.01em;
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+.chestText small {
+  font-size: 0.62rem;
+  line-height: 1.25;
+  color: var(--text-secondary);
+}
+.chestReward {
+  font-size: 0.56rem;
+  padding: 0.16rem 0.44rem;
+  letter-spacing: 0.03em;
+}
+
+/* ───────────────────────── Meta (Gran Premio) ───────────────────────── */
+.goalRow {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.6rem;
+}
+.goalNode {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  max-width: 320px;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-ios, 18px);
+  text-decoration: none;
+  background: linear-gradient(135deg, rgba(233, 196, 106, 0.2), rgba(0, 0, 0, 0.4));
+  border: 1.5px solid rgba(233, 196, 106, 0.5);
+  box-shadow: 0 16px 40px rgba(233, 196, 106, 0.2), 0 0 0 1px rgba(233, 196, 106, 0.25);
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+}
+.goalNode:hover { transform: translateY(-2px); box-shadow: 0 20px 50px rgba(233, 196, 106, 0.35); }
+.goalNode:active { transform: scale(0.98); }
+.goalNode:focus-visible { outline: 2px solid var(--celeste); outline-offset: 2px; }
+.goalGlow {
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: radial-gradient(80% 120% at 50% 0%, rgba(233, 196, 106, 0.35), transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+.goalCrown {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  color: #14110a;
+  background: radial-gradient(circle at 35% 30%, #fff4cf, var(--gold) 55%, var(--gold-deep));
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 0 20px rgba(233, 196, 106, 0.6);
+}
+.goalText {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.goalText strong {
+  font-size: 1.05rem;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  color: var(--gold);
+}
+.goalText small {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+.goalChevron { position: relative; z-index: 1; color: var(--gold); flex-shrink: 0; }
+
+/* ───────────────────────── Largada (base del sendero) ───────────────────────── */
+.startRow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding-top: 0.4rem;
+}
+.startDot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--pitch);
+  box-shadow: 0 0 0 4px var(--pitch-soft), 0 0 16px rgba(47, 170, 90, 0.5);
+}
+.startLabel {
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+/* ───────────────────────── Pantallas chicas (≤360px) ───────────────────────── */
+@media (max-width: 360px) {
+  .nodeCol { width: 64px; }
+  .node { width: 64px; height: 64px; }
+  .rowLeft .connector { left: 32px; }
+  .rowRight .connector { right: 32px; }
+  .emoji { font-size: 1.6rem; }
+  .nodeWrap { gap: 0.55rem; }
+  .infoTitle { font-size: 0.94rem; }
+  .infoSub { font-size: 0.72rem; }
+  /* En pantallas muy chicas el cofre se apoya debajo, no flotando, para no
+     pisar el cartel. */
+  .chest {
+    position: relative;
+    top: auto;
+    right: auto;
+    left: auto;
+    transform: none;
+    width: auto;
+    flex-direction: row;
+    gap: 0.6rem;
+    margin-left: 0.4rem;
+  }
+  .chestBranch { display: none; }
+  .chestText { align-items: flex-start; text-align: left; }
+}
+
+/* ───────────────────────── Reduced motion ───────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .nodeOpen { animation: none; }
+  .chestGlow { animation: none; opacity: 0.6; }
+  a.node:hover, .goalNode:hover, .chest:hover .chestBox { transform: none; }
+}
