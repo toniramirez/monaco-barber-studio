@@ -30,7 +30,7 @@ export default function Countdown({ target }: { target: string }) {
     <div
       className={styles.scoreboard}
       role="timer"
-      aria-label="Cuenta regresiva para el cierre de la quiniela"
+      aria-label="Cuenta regresiva para el cierre del prode"
     >
       {segs.map(([val, unit, accent]) => (
         <div className={styles.sbSeg} key={unit}>

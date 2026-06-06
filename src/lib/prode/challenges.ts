@@ -58,10 +58,10 @@ export const CHALLENGES: ChallengeDef[] = [
   },
   {
     key: "quiniela",
-    slug: "quiniela",
+    slug: "gran-prode",
     kind: "quiniela",
-    title: "La Gran Quiniela",
-    short: "GQ",
+    title: "El Gran Prode",
+    short: "GP",
     subtitle: "Campeón, goleador y más",
     reward: { label: "Define el Gran Premio", tier: "special" },
     special: true,

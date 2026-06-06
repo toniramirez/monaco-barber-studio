@@ -102,7 +102,7 @@ export default async function Image({ params }: { params: Promise<{ pid: string 
         {/* bloque central */}
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
           <span style={{ fontSize: 22, fontWeight: 800, letterSpacing: 4, color: GOLD }}>
-            LA QUINIELA DEL CAMPEÓN
+            EL PRODE DE MONACO
           </span>
 
           {champion ? (

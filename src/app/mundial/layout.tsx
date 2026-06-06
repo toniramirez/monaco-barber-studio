@@ -10,7 +10,7 @@ import LeagueInviteCapture from "./LeagueInviteCapture";
 export const metadata: Metadata = {
   title: "Prode Mundial 2026 | Monaco Barber Studio",
   description:
-    "La Quiniela del Campeón. Jugá gratis el prode del Mundial 2026 de Monaco, sumá fichas y ganá cortes.",
+    "El Prode de Monaco. Jugá gratis el prode del Mundial 2026, sumá fichas y ganá cortes.",
 };
 
 /**

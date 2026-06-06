@@ -181,7 +181,7 @@ export async function submitQuiniela(
   if (!parsed.success) return fail("Respuestas inválidas");
 
   const res = await callRpc("prode_submit_quiniela", { p_participant_id: pid, p_answers: parsed.data });
-  if (!res.ok) return fail(res.error ?? "No se pudo guardar la quiniela");
+  if (!res.ok) return fail(res.error ?? "No se pudo guardar tu jugada");
   return ok({ saved: Number(res.saved ?? 0) });
 }
 

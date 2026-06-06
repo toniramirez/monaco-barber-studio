@@ -25,7 +25,7 @@ export default async function MundialPage() {
           <Sparkles className={shell.gateIcon} size={40} aria-hidden="true" />
           <h1 className={shell.sectionTitle}>El Prode todavía no arrancó</h1>
           <p className={shell.sectionSub}>
-            La Quiniela del Campeón se está preparando. ¡Volvé pronto, crack!
+            El Prode de Monaco se está preparando. ¡Volvé pronto, crack!
           </p>
         </div>
       </main>
@@ -59,7 +59,7 @@ export default async function MundialPage() {
             <Sparkles size={13} aria-hidden="true" /> Mundial 2026 · Monaco
           </span>
 
-          <h1 className={`${shell.shineTitle} ${styles.heroTitle}`}>La Quiniela del Campeón</h1>
+          <h1 className={`${shell.shineTitle} ${styles.heroTitle}`}>El Prode de Monaco</h1>
 
           <p className={styles.heroSubtitle}>
             Adiviná el Mundial y ganale a la <span className={styles.hlCeleste}>Casa</span>.{" "}
@@ -68,7 +68,7 @@ export default async function MundialPage() {
 
           <div className={styles.countdownWrap}>
             <span className={styles.countdownLabel}>
-              <Timer size={13} aria-hidden="true" /> Falta para que cierre la quiniela
+              <Timer size={13} aria-hidden="true" /> Falta para que cierre el prode
             </span>
             <Countdown target={lockAt} />
           </div>

@@ -358,7 +358,7 @@ function CofreRow({
 
   return (
     <motion.div variants={rm ? undefined : rowVariants} className={styles.rowWrap}>
-      <Link href="/mundial/jugar/quiniela" className={`${styles.row} ${styles.cofreRow}`} aria-label={aria}>
+      <Link href="/mundial/jugar/gran-prode" className={`${styles.row} ${styles.cofreRow}`} aria-label={aria}>
         <div className={styles.rail}>
           <span className={lineCls} aria-hidden="true" />
           <div className={`${styles.node} ${styles.cofreNode}`}>

@@ -20,7 +20,7 @@ type Props = {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { pid } = await params;
   let title = "Prode Mundial 2026 — Monaco";
-  let description = "Armá tu quiniela del Mundial 2026, sumá fichas y ganá cortes en Monaco.";
+  let description = "Armá tu prode del Mundial 2026, sumá fichas y ganá cortes en Monaco.";
   try {
     const s = await getShareData(pid);
     if (s) {
@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title = champ
         ? `${s.display_name} le apostó a ${champ} campeón. ¿le ganás?`
         : `${s.display_name} está jugando el Prode Mundial. ¿le ganás?`;
-      description = "Sumate gratis al Prode Mundial de Monaco, armá tu quiniela y ganá cortes.";
+      description = "Sumate gratis al Prode Mundial de Monaco, armá tu prode y ganá cortes.";
     }
   } catch {
     /* fallback al título genérico */
@@ -79,12 +79,12 @@ export default async function SharePage({ params, searchParams }: Props) {
           </div>
         ) : (
           <p className={styles.lead}>
-            Está jugando <strong className={styles.hl}>La Quiniela del Campeón</strong>. ¿Le ganás?
+            Está jugando <strong className={styles.hl}>El Prode de Monaco</strong>. ¿Le ganás?
           </p>
         )}
 
         <p className={styles.lead}>
-          Armá tu quiniela gratis, sumá fichas y ganá <strong className={styles.hl}>cortes</strong> en
+          Armá tu prode gratis, sumá fichas y ganá <strong className={styles.hl}>cortes</strong> en
           Monaco. ¿Te animás a ganarle?
         </p>
 

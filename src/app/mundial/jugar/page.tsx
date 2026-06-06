@@ -29,7 +29,7 @@ export default async function JugarPage() {
             El Prode todavía no <span className={shell.em}>arrancó</span>
           </h1>
           <p className={shell.sectionSub}>
-            La Quiniela del Campeón se está preparando. ¡Volvé pronto, crack!
+            El Prode de Monaco se está preparando. ¡Volvé pronto, crack!
           </p>
         </div>
       </main>

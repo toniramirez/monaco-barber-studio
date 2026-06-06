@@ -5,7 +5,7 @@ import { getMyState } from "../actions";
 
 export const metadata: Metadata = {
   title: "Mi cuenta | Prode Mundial 2026 — Monaco",
-  description: "Tu perfil, tu Quiniela, tu liga privada y tus fichas en el Prode Mundial 2026 de Monaco.",
+  description: "Tu perfil, tu prode, tu liga privada y tus fichas en el Prode Mundial 2026 de Monaco.",
 };
 
 export const dynamic = "force-dynamic";

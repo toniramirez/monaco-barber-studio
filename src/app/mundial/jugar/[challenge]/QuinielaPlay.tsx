@@ -100,8 +100,8 @@ export default function QuinielaPlay({ questions, teams, myState, locked, reward
           <ChevronLeft size={16} aria-hidden="true" /> Volver al camino
         </Link>
         <h1 className={shell.sectionTitle}>
-          <Crown size={24} className={styles.headIcon} aria-hidden="true" /> La Gran{" "}
-          <span className={shell.em}>Quiniela</span>
+          <Crown size={24} className={styles.headIcon} aria-hidden="true" /> El Gran{" "}
+          <span className={shell.em}>Prode</span>
         </h1>
         <p className={shell.sectionSub}>
           Campeón, goleador y más. {rewardLabel} — el desafío que define al campeón del prode.
@@ -121,7 +121,7 @@ export default function QuinielaPlay({ questions, teams, myState, locked, reward
                 </div>
               )}
               <PartyPopper className={styles.doneIcon} size={40} aria-hidden="true" />
-              <h2 className={styles.doneTitle}>¡Gran Quiniela guardada!</h2>
+              <h2 className={styles.doneTitle}>¡Gran Prode guardado!</h2>
               <p className={styles.doneSub}>
                 Tus pronósticos grandes están cargados. Seguí completando los Desafíos para sumar fichas.
               </p>
@@ -136,7 +136,7 @@ export default function QuinielaPlay({ questions, teams, myState, locked, reward
             </motion.div>
           ) : total === 0 ? (
             <motion.div key="empty" {...animate}>
-              <p className={styles.stepSub}>La Quiniela se está preparando. Volvé en un rato.</p>
+              <p className={styles.stepSub}>El Prode se está preparando. Volvé en un rato.</p>
             </motion.div>
           ) : (
             <motion.div key={`q-${q!.id}`} {...animate}>
@@ -147,7 +147,7 @@ export default function QuinielaPlay({ questions, teams, myState, locked, reward
                 aria-valuemin={0}
                 aria-valuemax={total}
                 aria-valuenow={qIndex + 1}
-                aria-label="Progreso de la Gran Quiniela"
+                aria-label="Progreso del Gran Prode"
               >
                 <div className={styles.qBarFill} style={{ width: `${((qIndex + 1) / total) * 100}%` }} />
               </div>
@@ -210,7 +210,7 @@ export default function QuinielaPlay({ questions, teams, myState, locked, reward
 
               {locked && (
                 <p className={styles.lockedNote}>
-                  <Lock size={13} aria-hidden="true" /> La quiniela ya cerró — guardás solo para verla.
+                  <Lock size={13} aria-hidden="true" /> El prode ya cerró — guardás solo para verla.
                 </p>
               )}
               {error && <p className={shell.error} role="alert">{error}</p>}
@@ -227,7 +227,7 @@ export default function QuinielaPlay({ questions, teams, myState, locked, reward
                   </button>
                 ) : (
                   <button className={`${shell.btnPrimary} ${styles.navBtn}`} onClick={onSave} disabled={pending}>
-                    {pending ? "Guardando…" : "Guardar mi Quiniela"}
+                    {pending ? "Guardando…" : "Guardar mi Prode"}
                   </button>
                 )}
               </div>

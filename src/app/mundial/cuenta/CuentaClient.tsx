@@ -90,7 +90,7 @@ export default function CuentaClient({ myState, questions, teams, rewards, edita
       .finally(() => setPending(false));
   }, []);
 
-  // Lookup de preguntas por id para renderizar "Mi Quiniela" legible.
+  // Lookup de preguntas por id para renderizar "Mi Prode" legible.
   const questionsById = useMemo(() => {
     const map = new Map<string, ProdeQuestion>();
     questions.forEach((q) => map.set(q.id, q));
@@ -131,7 +131,7 @@ export default function CuentaClient({ myState, questions, teams, rewards, edita
     const ligaQ = inviteCode ? `?liga=${inviteCode}` : "";
     // Link a la placa del jugador: preview lindo (OG) en WhatsApp/IG + auto-une por ?liga.
     const url = pid ? `${base}/mundial/share/${pid}${ligaQ}` : `${base}/mundial${ligaQ}`;
-    const text = "Te reto en el Prode Mundial de Monaco. Armá tu quiniela y ganá cortes:";
+    const text = "Te reto en el Prode Mundial de Monaco. Armá tu prode y ganá cortes:";
     if (navigator.share) navigator.share({ title: "Prode Monaco", text, url }).catch(() => {});
     else { navigator.clipboard?.writeText(`${text} ${url}`); setLeagueMsg("¡Link copiado!"); }
   }
@@ -156,7 +156,7 @@ export default function CuentaClient({ myState, questions, teams, rewards, edita
           </div>
           <h1 className={shell.sectionTitle}>Todavía no estás jugando</h1>
           <p className={shell.sectionSub}>
-            Sumate al Prode, armá tu quiniela y empezá a sumar fichas para canjear por cortes.
+            Sumate al Prode, armá tu jugada y empezá a sumar fichas para canjear por cortes.
           </p>
           <div className={styles.gateActions}>
             <Link href="/mundial/jugar" className={shell.btnPrimary}>
@@ -248,17 +248,17 @@ export default function CuentaClient({ myState, questions, teams, rewards, edita
         )}
       </section>
 
-      {/* 2) Mi Quiniela */}
-      <section className={`${shell.card} ${styles.block}`} aria-label="Mi Quiniela">
+      {/* 2) Mi Prode */}
+      <section className={`${shell.card} ${styles.block}`} aria-label="Mi Prode">
         <h2 className={styles.blockTitle}>
-          <ListChecks size={18} aria-hidden="true" /> Mi Quiniela
+          <ListChecks size={18} aria-hidden="true" /> Mi Prode
         </h2>
 
         {answered.length === 0 ? (
           <div className={styles.emptyQuiniela}>
-            <p className={shell.helper}>Todavía no armaste tu Quiniela.</p>
-            <Link href="/mundial/jugar/quiniela" className={shell.btnPrimary}>
-              Armar mi Quiniela <ChevronRight size={18} aria-hidden="true" />
+            <p className={shell.helper}>Todavía no armaste tu prode.</p>
+            <Link href="/mundial/jugar/gran-prode" className={shell.btnPrimary}>
+              Armar mi prode <ChevronRight size={18} aria-hidden="true" />
             </Link>
           </div>
         ) : (
@@ -286,12 +286,12 @@ export default function CuentaClient({ myState, questions, teams, rewards, edita
               })}
             </ul>
             {editable ? (
-              <Link href="/mundial/jugar/quiniela" className={`${shell.btnGhost} ${styles.editBtn}`}>
-                Editar mi Quiniela <ChevronRight size={16} aria-hidden="true" />
+              <Link href="/mundial/jugar/gran-prode" className={`${shell.btnGhost} ${styles.editBtn}`}>
+                Editar mi prode <ChevronRight size={16} aria-hidden="true" />
               </Link>
             ) : (
               <p className={styles.lockedNote}>
-                <Lock size={13} aria-hidden="true" /> La quiniela ya cerró
+                <Lock size={13} aria-hidden="true" /> El prode ya cerró
               </p>
             )}
           </>
