@@ -64,9 +64,11 @@ export default function Onboarding() {
     setError(null);
     if (firstName.trim().length < 2) return setError("Ingresá tu nombre");
     if (phone.replace(/\D/g, "").length < 8) return setError("Ingresá un teléfono válido");
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(birthdate)) return setError("Ingresá tu fecha de nacimiento");
+    if (new Date(birthdate + "T00:00:00") > new Date()) return setError("La fecha de nacimiento no puede ser futura");
     if (!/^\d{4}$/.test(pin)) return setError("Elegí un PIN de 4 dígitos");
     run(async () => {
-      const r = await authWithPin({ phone, pin, firstName, lastName });
+      const r = await authWithPin({ phone, pin, firstName, lastName, birthdate });
       if (!r.ok) return setError(r.error);
       if (r.data.needName) return setError("Completá tu nombre para crear la cuenta");
       if (r.data.displayName) setDisplayName(r.data.displayName);
@@ -146,6 +148,10 @@ export default function Onboarding() {
                 <input id="ob-wpp" className={shell.input} value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="351 555 5555" inputMode="tel" autoComplete="tel" />
               </div>
               <div className={shell.field}>
+                <label className={shell.label} htmlFor="ob-nac-reg">Fecha de nacimiento</label>
+                <input id="ob-nac-reg" className={shell.input} value={birthdate} onChange={(e) => setBirthdate(e.target.value)} type="date" autoComplete="bday" />
+              </div>
+              <div className={shell.field}>
                 <label className={shell.label} htmlFor="ob-pin">Elegí tu PIN (4 dígitos)</label>
                 <input id="ob-pin" className={`${shell.input} ${styles.otpInput}`} value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 4))} placeholder="••••" inputMode="numeric" autoComplete="new-password" maxLength={4} />
               </div>
@@ -191,15 +197,9 @@ export default function Onboarding() {
                 <label className={shell.label} htmlFor="ob-email">Email</label>
                 <input id="ob-email" className={shell.input} value={email} onChange={(e) => setEmail(e.target.value)} placeholder="vos@email.com" type="email" autoComplete="email" />
               </div>
-              <div className={shell.row2}>
-                <div className={shell.field}>
-                  <label className={shell.label} htmlFor="ob-dni">DNI</label>
-                  <input id="ob-dni" className={shell.input} value={dni} onChange={(e) => setDni(e.target.value.replace(/\D/g, "").slice(0, 9))} placeholder="30111222" inputMode="numeric" />
-                </div>
-                <div className={shell.field}>
-                  <label className={shell.label} htmlFor="ob-nac">Nacimiento</label>
-                  <input id="ob-nac" className={shell.input} value={birthdate} onChange={(e) => setBirthdate(e.target.value)} type="date" />
-                </div>
+              <div className={shell.field}>
+                <label className={shell.label} htmlFor="ob-dni">DNI</label>
+                <input id="ob-dni" className={shell.input} value={dni} onChange={(e) => setDni(e.target.value.replace(/\D/g, "").slice(0, 9))} placeholder="30111222" inputMode="numeric" />
               </div>
               <label className={shell.consent}>
                 <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} />

@@ -24,6 +24,16 @@ const phoneSchema = z
   .transform((s) => s.replace(/\D/g, ""))
   .pipe(z.string().min(8, "Teléfono inválido").max(15));
 const pinSchema = z.string().trim().regex(/^\d{4}$/, "El PIN son 4 dígitos");
+const birthdateSchema = z
+  .string()
+  .trim()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "Ingresá tu fecha de nacimiento")
+  .refine((s) => {
+    const d = new Date(s + "T00:00:00Z");
+    if (Number.isNaN(d.getTime())) return false;
+    const now = new Date();
+    return d <= now && d.getUTCFullYear() >= 1900;
+  }, "Fecha de nacimiento inválida");
 
 type RpcResult = { ok: boolean; error?: string } & Record<string, unknown>;
 
@@ -49,6 +59,7 @@ export async function authWithPin(input: {
   pin: string;
   firstName?: string;
   lastName?: string;
+  birthdate?: string;
 }): Promise<
   Result<{
     needName?: boolean;
@@ -65,9 +76,15 @@ export async function authWithPin(input: {
 
   const first = (input.firstName ?? "").trim();
   const last = (input.lastName ?? "").trim();
+  // La fecha de nacimiento es obligatoria SOLO en el alta (cuando viene nombre);
+  // en el login por PIN no se pide. Se guarda al crear el participante.
+  let birthdate: string | null = null;
   if (first) {
     const n = nameSchema.safeParse(first);
     if (!n.success) return fail(n.error.issues[0]?.message ?? "Nombre inválido");
+    const b = birthdateSchema.safeParse(input.birthdate ?? "");
+    if (!b.success) return fail(b.error.issues[0]?.message ?? "Fecha de nacimiento inválida");
+    birthdate = b.data;
   }
 
   const res = await callRpc("prode_auth_with_pin", {
@@ -75,6 +92,7 @@ export async function authWithPin(input: {
     p_pin: pin.data,
     p_first_name: first || null,
     p_last_name: last || null,
+    p_birthdate: birthdate,
   });
   if (!res.ok) return fail(res.error ?? "No se pudo entrar");
 
