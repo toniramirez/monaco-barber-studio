@@ -25,7 +25,6 @@ import {
   Shirt,
   Scissors,
   Disc3,
-  Goal,
   Sparkles,
   Trophy,
 } from "lucide-react";
@@ -273,7 +272,7 @@ function PathRow({
             ) : isLocked ? (
               <Lock size={22} className={styles.lockIcon} aria-hidden="true" />
             ) : (
-              <Goal size={28} className={styles.faceIcon} aria-hidden="true" />
+              <span className={styles.ballEmoji} aria-hidden="true">⚽</span>
             )}
           </span>
           {token && (
