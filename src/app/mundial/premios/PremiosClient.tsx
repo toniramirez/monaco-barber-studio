@@ -212,6 +212,12 @@ function JerseyHero() {
         animate={rm ? undefined : { y: [0, -9, 0] }}
         transition={rm ? undefined : { duration: 5, ease: "easeInOut", repeat: Infinity }}
       >
+        {/* Etiqueta del lado visible: vive FUERA de la tarjeta que rota. Si estuviera
+            dentro del back-face, en algunos navegadores/GPUs el texto del dorso se
+            espeja (se ve "MESSI" al revés). Acá sólo cambia el texto, nunca rota. */}
+        <span className={styles.jerseyFaceLabel} aria-hidden="true">
+          {flipped ? "MESSI · 10" : "Frente"}
+        </span>
         {rm ? (
           // Reduced-motion: crossfade sin rotación 3D ni float.
           <button
@@ -265,7 +271,6 @@ function JerseyHero() {
             transition={{ type: "spring", stiffness: 130, damping: 14, mass: 0.9 }}
           >
             <span className={styles.jerseyFace} aria-hidden={flipped}>
-              <span className={styles.jerseyFaceLabel}>Frente</span>
               <Image
                 src="/camiseta_frente.png"
                 alt="Camiseta de la selección — frente"
@@ -277,7 +282,6 @@ function JerseyHero() {
               />
             </span>
             <span className={`${styles.jerseyFace} ${styles.jerseyFaceBack}`} aria-hidden={!flipped}>
-              <span className={styles.jerseyFaceLabel}>MESSI · 10</span>
               <Image
                 src="/camiseta_atras.png"
                 alt="Camiseta de la selección — espalda con MESSI 10"

@@ -240,12 +240,16 @@
 .jerseyTwirl:hover svg {
   transform: rotate(90deg);
 }
+/* Etiqueta del lado visible (Frente / MESSI · 10). Vive en el .jerseyStage, por
+   encima de la tarjeta y FUERA de la rotación 3D → nunca se espeja. */
 .jerseyFaceLabel {
   position: absolute;
   top: 0.4rem;
   left: 50%;
   transform: translateX(-50%);
   z-index: 2;
+  pointer-events: none;
+  white-space: nowrap;
   font-size: 0.6rem;
   font-weight: 800;
   letter-spacing: 0.12em;
