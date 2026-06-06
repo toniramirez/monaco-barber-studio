@@ -301,7 +301,11 @@ function PathRow({
               {...(token.rm
                 ? {}
                 : {
-                    animate: { y: [0, -5, 0] },
+                    // x: "-50%" preserva el centrado (.token usa translateX(-50%));
+                    // si sólo animáramos y, framer pisa el transform y la ficha se
+                    // corre a la derecha. Mantenemos el centrado + el flote vertical.
+                    initial: { x: "-50%", y: 0 },
+                    animate: { x: "-50%", y: [0, -5, 0] },
                     transition: { duration: 1.8, repeat: Infinity, ease: "easeInOut" },
                   })}
             >

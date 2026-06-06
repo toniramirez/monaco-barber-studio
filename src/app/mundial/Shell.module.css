@@ -63,12 +63,17 @@
 .brand {
   display: flex;
   align-items: center;
-  gap: 0.55rem;
-  font-weight: 900;
-  font-size: 0.95rem;
-  letter-spacing: 0.05em;
+  gap: 0.5rem;
 }
-.brandLogo { border-radius: 7px; }
+/* Wordmark Monaco (trim del logo oficial). Alto fijo, ancho por aspect-ratio. */
+.brandWordmark {
+  height: 26px;
+  width: auto;
+  display: block;
+}
+@media (max-width: 360px) {
+  .brandWordmark { height: 22px; }
+}
 .brandBadge {
   font-size: 0.58rem;
   font-weight: 800;

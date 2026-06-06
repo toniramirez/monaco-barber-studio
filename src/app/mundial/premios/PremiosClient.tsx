@@ -96,6 +96,8 @@ export default function PremiosClient({
 
       <GrandPrize />
 
+      <MembershipShowcase />
+
       <Reveal className={styles.footNote}>
         <ShieldCheck size={14} className={styles.footIcon} aria-hidden="true" />
         Juego gratuito de habilidad sin valor monetario. Las fichas son puntos del
@@ -525,6 +527,72 @@ function GrandPrize() {
         <Trophy size={13} style={{ verticalAlign: "-2px", marginRight: "0.3rem", color: "var(--gold)" }} aria-hidden="true" />
         Las 3 con la camiseta de la selección incluida.
       </p>
+    </Reveal>
+  );
+}
+
+/* ─────────────────────────── 5 · Las membresías (premios reales) ─────────────────────────── */
+type Membership = {
+  src: string;
+  alt: string;
+  rank: string;
+  tierCls: string;
+};
+
+const MEMBERSHIPS: Membership[] = [
+  {
+    src: "/memberships/1_ano.png",
+    alt: "Membresía Monaco — 1 año de cortes gratis",
+    rank: "1° · Campeón",
+    tierCls: "membership_gold",
+  },
+  {
+    src: "/memberships/6_meses.png",
+    alt: "Membresía Monaco — 6 meses de cortes gratis",
+    rank: "2° puesto",
+    tierCls: "membership_silver",
+  },
+  {
+    src: "/memberships/3_meses.png",
+    alt: "Membresía Monaco — 3 meses de cortes gratis",
+    rank: "3° puesto",
+    tierCls: "membership_bronze",
+  },
+];
+
+function MembershipShowcase() {
+  return (
+    <Reveal className={styles.section} aria-labelledby="membership-title">
+      <div className={styles.challengeHead}>
+        <span className={shell.eyebrow}>
+          <Crown size={13} /> Membresías
+        </span>
+        <h2 id="membership-title" className={shell.sectionTitle} style={{ marginTop: "0.6rem" }}>
+          Cortes gratis, en serio
+        </h2>
+        <p className={styles.membershipSub}>
+          El podio del Gran Premio se lleva una membresía Monaco. Deslizá para verlas.
+        </p>
+      </div>
+
+      <div className={styles.membershipRow}>
+        {MEMBERSHIPS.map((m) => (
+          <figure key={m.src} className={styles.membershipCard}>
+            <Image
+              src={m.src}
+              alt={m.alt}
+              width={1254}
+              height={1254}
+              className={styles.membershipImg}
+              loading="lazy"
+              sizes="(max-width: 560px) 80vw, 300px"
+            />
+            <figcaption className={`${styles.membershipCaption} ${styles[m.tierCls]}`}>
+              {m.rank}
+            </figcaption>
+          </figure>
+        ))}
+      </div>
     </Reveal>
   );
 }

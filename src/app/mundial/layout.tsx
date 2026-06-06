@@ -22,9 +22,15 @@ export default function MundialLayout({ children }: { children: React.ReactNode 
   return (
     <div className={shell.shell}>
       <header className={shell.topbar}>
-        <Link href="/mundial" className={shell.brand}>
-          <Image src="/logo.jpeg" alt="Monaco" width={28} height={28} className={shell.brandLogo} />
-          <span>MONACO</span>
+        <Link href="/mundial" className={shell.brand} aria-label="Monaco Barber Studio — Prode">
+          <Image
+            src="/monaco-wordmark.png"
+            alt="Monaco Barber Studio"
+            width={108}
+            height={26}
+            className={shell.brandWordmark}
+            priority
+          />
           <span className={shell.brandBadge}>PRODE</span>
           <span className={shell.liveDot} aria-hidden="true" />
         </Link>

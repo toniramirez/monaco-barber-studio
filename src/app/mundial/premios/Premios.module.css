@@ -519,7 +519,79 @@
   letter-spacing: 0.02em;
 }
 
-/* ═══════════════════════ 5 · Footer legal ═══════════════════════ */
+/* ═══════════════════════ 5 · Membresías (premios reales) ═══════════════════════ */
+.membershipSub {
+  margin: 0.5rem auto 0;
+  max-width: 36ch;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+/* Carrusel horizontal con snap: una membresía a la vez + asoma la siguiente. */
+.membershipRow {
+  display: flex;
+  gap: 0.9rem;
+  margin-top: 1.3rem;
+  padding-bottom: 0.5rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-left: 0.1rem;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.membershipRow::-webkit-scrollbar {
+  display: none;
+}
+.membershipCard {
+  position: relative;
+  flex: 0 0 auto;
+  width: min(80vw, 300px);
+  margin: 0;
+  scroll-snap-align: start;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid var(--card-border);
+  background: #0e0f12;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45);
+}
+.membershipImg {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+/* Chapa del puesto del podio sobre la membresía (oro/plata/bronce). */
+.membershipCaption {
+  position: absolute;
+  top: 0.7rem;
+  left: 0.7rem;
+  font-size: 0.6rem;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 0.26rem 0.6rem;
+  border-radius: var(--radius-pill);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+}
+.membership_gold {
+  color: #14110a;
+  background: linear-gradient(135deg, #f6dd92, var(--gold-deep));
+  border: 1px solid rgba(233, 196, 106, 0.5);
+}
+.membership_silver {
+  color: #14110a;
+  background: linear-gradient(135deg, #e7ecf2, #b9c2cd);
+  border: 1px solid rgba(205, 211, 218, 0.55);
+}
+.membership_bronze {
+  color: #1a1109;
+  background: linear-gradient(135deg, #e0a878, #c07f4f);
+  border: 1px solid rgba(210, 139, 90, 0.55);
+}
+
+/* ═══════════════════════ 6 · Footer legal ═══════════════════════ */
 .footNote {
   margin-top: 2.3rem;
   color: var(--text-secondary);
