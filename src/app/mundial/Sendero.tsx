@@ -28,6 +28,7 @@ import {
   Trophy,
 } from "lucide-react";
 import { RouletteIcon } from "./RouletteIcon";
+import PlayCta from "./PlayCta";
 import shell from "./Shell.module.css";
 import styles from "./Sendero.module.css";
 import type { ChallengeState, ChallengeRewardTier } from "@/lib/prode/types";
@@ -97,13 +98,25 @@ export default function Sendero({ challenges, displayName, totalPoints, locked }
     return { chest, path };
   }, [challenges]);
 
-  // Progreso global = desafíos completados / jugables (no locked).
-  const playable = useMemo(() => path.filter((c) => c.state !== "locked"), [path]);
+  // Progreso del camino completo (todos los Desafíos, no sólo los desbloqueados):
+  // la barra refleja el viaje entero y crece a medida que completás etapas.
   const completedCount = useMemo(
-    () => playable.filter((c) => c.state === "completed").length,
-    [playable],
+    () => path.filter((c) => c.state === "completed").length,
+    [path],
   );
-  const pct = playable.length > 0 ? Math.round((completedCount / playable.length) * 100) : 0;
+  const journeyTotal = path.length;
+  const pct = journeyTotal > 0 ? Math.round((completedCount / journeyTotal) * 100) : 0;
+
+  // Destino del botón "Jugar": el primer Desafío activo (open/in_progress) o, si
+  // no hay ninguno abierto, la Gran Quiniela (el cofre, siempre disponible).
+  const play = useMemo(() => {
+    const active = path.find((c) => c.state === "open" || c.state === "in_progress");
+    const target = active ?? chest;
+    return {
+      href: `/mundial/jugar/${target?.slug ?? "gran-prode"}`,
+      label: locked ? "Ver mi Prode" : "Jugar",
+    };
+  }, [path, chest, locked]);
 
   // La ficha del jugador descansa sobre el nodo in_progress más avanzado; si no
   // hay ninguno, sobre el último completado.
@@ -119,15 +132,15 @@ export default function Sendero({ challenges, displayName, totalPoints, locked }
 
   const initial = (displayName?.trim()?.[0] || "?").toUpperCase();
 
-  // Orden visual TOP→BOTTOM: Final … 16vos, [cofre Gran Quiniela], D3 … D1.
-  // (path está en orden de torneo D1…Final → lo invertimos.) El cofre se inserta
-  // justo antes del primer desafío de grupos (queda entre eliminatorias y grupos).
+  // Orden visual TOP→BOTTOM = orden del torneo: La Largada arriba, después
+  // Desafío 1 … La Final, y la copa (Gran Premio) abajo de todo (el destino).
+  // El cofre (Gran Quiniela) se inserta entre la fase de grupos y las
+  // eliminatorias (justo después del último Desafío de grupos).
   const rows = useMemo(() => {
-    const reversed = [...path].reverse();
     const out: ({ type: "challenge"; c: ChallengeState } | { type: "cofre" })[] = [];
     let cofreDone = false;
-    for (const c of reversed) {
-      if (!cofreDone && chest && c.stage === "group") {
+    for (const c of path) {
+      if (!cofreDone && chest && c.stage !== "group") {
         out.push({ type: "cofre" });
         cofreDone = true;
       }
@@ -150,7 +163,7 @@ export default function Sendero({ challenges, displayName, totalPoints, locked }
             <strong>{totalPoints}</strong> fichas
           </span>
         </div>
-        <p className={styles.headSub}>Subí el camino: cada Desafío, más cortes en juego</p>
+        <p className={styles.headSub}>Seguí el camino: cada Desafío, más cortes en juego</p>
 
         <div className={styles.progress}>
           <div
@@ -159,7 +172,7 @@ export default function Sendero({ challenges, displayName, totalPoints, locked }
             aria-valuenow={pct}
             aria-valuemin={0}
             aria-valuemax={100}
-            aria-label={`Progreso del camino: ${completedCount} de ${playable.length} desafíos`}
+            aria-label={`Progreso del camino: ${completedCount} de ${journeyTotal} desafíos`}
           >
             <motion.span
               className={styles.progressFill}
@@ -169,10 +182,13 @@ export default function Sendero({ challenges, displayName, totalPoints, locked }
             />
           </div>
           <span className={styles.progressLabel} role="status" aria-live="polite">
-            {completedCount}/{playable.length} desafíos
+            {completedCount}/{journeyTotal} desafíos
           </span>
         </div>
       </header>
+
+      {/* ── CTA: Jugar (al Desafío activo) + Jugar con amigos (crear liga) ── */}
+      <PlayCta playHref={play.href} playLabel={play.label} displayName={displayName} />
 
       {/* ── El camino ── */}
       <motion.div
@@ -181,7 +197,32 @@ export default function Sendero({ challenges, displayName, totalPoints, locked }
         initial={rm ? false : "hidden"}
         animate={rm ? undefined : "show"}
       >
-        {/* META — Gran Premio (la copa, arriba de todo). */}
+        {/* LARGADA — el inicio del camino, arriba de todo (acá abre el Desafío 1). */}
+        <motion.div variants={rm ? undefined : rowVariants} className={styles.largadaRow} aria-hidden="true">
+          <div className={styles.rail}>
+            <span className={`${styles.line} ${styles.lineGold} ${styles.lineFromCenter}`} />
+            <span className={styles.largadaDot} />
+          </div>
+          <span className={styles.largadaLabel}>La largada</span>
+        </motion.div>
+
+        {rows.map((r, i) => {
+          const last = i === rows.length - 1;
+          return r.type === "cofre" ? (
+            <CofreRow key="cofre" chest={chest!} locked={locked} rm={!!rm} last={last} />
+          ) : (
+            <PathRow
+              key={r.c.key}
+              c={r.c}
+              locked={locked}
+              rm={!!rm}
+              last={last}
+              token={r.c.key === tokenKey && tokenKey !== null ? { initial, rm: !!rm } : null}
+            />
+          );
+        })}
+
+        {/* META — Gran Premio (la copa, abajo de todo: el destino del camino). */}
         <motion.div variants={rm ? undefined : rowVariants} className={styles.goalRow}>
           <Link href="/mundial/premios" className={styles.goalNode} aria-label="La meta: el Gran Premio. Ver premios">
             <span className={styles.goalGlow} aria-hidden="true" />
@@ -195,30 +236,6 @@ export default function Sendero({ challenges, displayName, totalPoints, locked }
             <ChevronRight size={18} className={styles.goalChevron} aria-hidden="true" />
           </Link>
         </motion.div>
-
-        {rows.map((r, i) =>
-          r.type === "cofre" ? (
-            <CofreRow key="cofre" chest={chest!} locked={locked} rm={!!rm} first={i === 0} />
-          ) : (
-            <PathRow
-              key={r.c.key}
-              c={r.c}
-              locked={locked}
-              rm={!!rm}
-              first={i === 0}
-              token={r.c.key === tokenKey && tokenKey !== null ? { initial, rm: !!rm } : null}
-            />
-          ),
-        )}
-
-        {/* LARGADA — el inicio del camino, abajo de todo. */}
-        <motion.div variants={rm ? undefined : rowVariants} className={styles.largadaRow} aria-hidden="true">
-          <div className={styles.rail}>
-            <span className={`${styles.line} ${styles.lineGold} ${styles.lineToCenter}`} />
-            <span className={styles.largadaDot} />
-          </div>
-          <span className={styles.largadaLabel}>La largada</span>
-        </motion.div>
       </motion.div>
     </section>
   );
@@ -229,13 +246,13 @@ function PathRow({
   c,
   locked,
   rm,
-  first,
+  last,
   token,
 }: {
   c: ChallengeState;
   locked: boolean;
   rm: boolean;
-  first: boolean;
+  last: boolean;
   token: { initial: string; rm: boolean } | null;
 }) {
   const isLocked = c.state === "locked";
@@ -252,7 +269,9 @@ function PathRow({
           ? styles.nodeOpen
           : styles.nodeLocked;
 
-  const lineCls = `${styles.line} ${reached ? styles.lineGold : styles.lineDashed} ${first ? styles.lineFromCenter : ""}`;
+  // La cuerda baja desde La Largada (arriba). La última fila (La Final) corta en
+  // el centro de su nodo para no asomar hacia la copa que va abajo.
+  const lineCls = `${styles.line} ${reached ? styles.lineGold : styles.lineDashed} ${last ? styles.lineToCenter : ""}`;
 
   const aria = isLocked
     ? `${c.title}. Bloqueado, ${c.subtitle}. Recompensa: ${c.reward.label}`
@@ -343,15 +362,15 @@ function CofreRow({
   chest,
   locked,
   rm,
-  first,
+  last,
 }: {
   chest: ChallengeState;
   locked: boolean;
   rm: boolean;
-  first: boolean;
+  last: boolean;
 }) {
   const reached = chest.state === "completed" || chest.state === "in_progress";
-  const lineCls = `${styles.line} ${reached ? styles.lineGold : styles.lineDashed} ${first ? styles.lineFromCenter : ""}`;
+  const lineCls = `${styles.line} ${reached ? styles.lineGold : styles.lineDashed} ${last ? styles.lineToCenter : ""}`;
   const aria = `${chest.title}, siempre disponible. ${chest.done} de ${chest.total} respondidas. Recompensa: ${chest.reward.label}. ${
     locked ? "Ver" : chest.state === "completed" ? "Revisar" : chest.done > 0 ? "Seguir" : "Empezar"
   }`;

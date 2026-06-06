@@ -228,11 +228,11 @@
   transition: transform 0.14s ease, box-shadow 0.2s ease;
 }
 .jerseyTwirl:hover {
-  transform: translateX(50%) translateY(-1px);
+  transform: translateY(-1px);
   box-shadow: 0 12px 26px rgba(233, 196, 106, 0.45);
 }
 .jerseyTwirl:active {
-  transform: translateX(50%) scale(0.95);
+  transform: scale(0.95);
 }
 .jerseyTwirl svg {
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);

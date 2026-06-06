@@ -58,6 +58,7 @@ export default function CuentaClient({ myState, questions, teams, rewards, edita
 
   // liga privada
   const [inviteCode, setInviteCode] = useState<string | null>(null);
+  const [leagueName, setLeagueName] = useState("");
   const [joinCode, setJoinCode] = useState("");
   const [leagueMsg, setLeagueMsg] = useState<string | null>(null);
 
@@ -108,8 +109,10 @@ export default function CuentaClient({ myState, questions, teams, rewards, edita
   function onCreateLeague() {
     setLeagueMsg(null);
     setError(null);
+    // El jugador le pone el nombre que quiera; si lo deja vacío, default amable.
+    const chosen = leagueName.trim() || "Liga de " + (myState?.display_name || "amigos");
     run(async () => {
-      const r = await createLeague("Liga de " + (myState?.display_name || "amigos"));
+      const r = await createLeague(chosen);
       if (!r.ok) { setLeagueMsg(r.error); return; }
       setInviteCode(r.data.inviteCode);
     });
@@ -310,9 +313,19 @@ export default function CuentaClient({ myState, questions, teams, rewards, edita
             Código de tu liga: <strong>{inviteCode}</strong> — compartilo
           </div>
         ) : (
-          <button type="button" className={`${shell.btnGhost} ${styles.spaced}`} onClick={onCreateLeague} disabled={pending}>
-            {pending ? "Creando…" : "Crear mi liga"}
-          </button>
+          <>
+            <input
+              className={`${shell.input} ${styles.spaced}`}
+              value={leagueName}
+              onChange={(e) => setLeagueName(e.target.value.slice(0, 60))}
+              placeholder="Nombre de tu liga (ej: Los cracks)"
+              aria-label="Nombre de tu liga"
+              maxLength={60}
+            />
+            <button type="button" className={`${shell.btnGhost} ${styles.spaced}`} onClick={onCreateLeague} disabled={pending}>
+              {pending ? "Creando…" : "Crear mi liga"}
+            </button>
+          </>
         )}
 
         <div className={styles.joinRow}>

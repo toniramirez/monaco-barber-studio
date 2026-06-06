@@ -1,0 +1,258 @@
+/* ════════════════════════════════════════════════════════════════════════
+   PlayCta — CTA del hub Jugar (botón "Jugar" + "Jugar con amigos") y la hoja
+   modal para crear/unirse a una liga privada. Botones/inputs vienen del Shell;
+   acá vive el layout del par de botones y el bottom-sheet. Colores vía var().
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* ── Par de botones del hub ── */
+.cta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin: 0.1rem 0 0.5rem;
+}
+.playBtn {
+  font-size: 1.08rem;
+}
+/* "Jugar con amigos": ghost con acento celeste de invitación. */
+.friendsBtn {
+  color: var(--celeste);
+  border-color: rgba(121, 192, 242, 0.32);
+  background: var(--celeste-soft);
+}
+.friendsBtn:hover {
+  border-color: var(--celeste);
+  color: var(--celeste);
+  background: rgba(121, 192, 242, 0.18);
+}
+
+/* ── Overlay + hoja (bottom-sheet en móvil, centrada en desktop) ── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.66);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: ctaFade 0.2s ease;
+}
+@media (min-width: 480px) {
+  .overlay {
+    align-items: center;
+  }
+}
+.sheet {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  max-height: calc(100svh - 2rem);
+  overflow-y: auto;
+  text-align: center;
+  padding: 1.7rem 1.3rem calc(1.4rem + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(180deg, rgba(44, 46, 50, 0.97), rgba(26, 28, 32, 0.99));
+  border: 1px solid var(--card-border);
+  border-radius: 24px;
+  box-shadow: 0 -12px 54px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  animation: sheetUp 0.34s cubic-bezier(0.16, 1, 0.3, 1);
+}
+/* La cinta tricolor superior, mismo gesto de marca que las cards destacadas. */
+.sheet::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  border-radius: 24px 24px 0 0;
+  background: linear-gradient(90deg, var(--celeste), var(--gold), var(--celeste));
+}
+@keyframes sheetUp {
+  from {
+    opacity: 0;
+    transform: translateY(26px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes ctaFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.close {
+  position: absolute;
+  top: 0.85rem;
+  right: 0.85rem;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--card-border);
+  cursor: pointer;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+.close:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.sheetIcon {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  margin: 0.2rem auto 0.7rem;
+  border-radius: 50%;
+  color: #14110a;
+  background: radial-gradient(circle at 35% 30%, #fff4cf, var(--gold) 55%, var(--gold-deep));
+  border: 2px solid rgba(255, 255, 255, 0.55);
+  box-shadow: 0 0 22px rgba(233, 196, 106, 0.5);
+}
+.sheetTitle {
+  font-size: 1.32rem;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  color: var(--text-primary);
+  margin: 0 0 0.35rem;
+}
+.sheetSub {
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--text-secondary);
+  margin: 0 auto 1.2rem;
+  max-width: 34ch;
+}
+.leagueName {
+  color: var(--gold);
+  font-weight: 800;
+}
+
+/* Espaciado uniforme de los botones del shell dentro de la hoja. */
+.sheet :global(.btnPrimary),
+.sheet :global(.btnGhost) {
+  margin-top: 0.7rem;
+}
+
+/* Divisor "o" entre crear y unirse. */
+.or {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin: 1.1rem 0 0.3rem;
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.or::before,
+.or::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--card-border);
+}
+
+/* Fila de unirse: input + botón. */
+.joinRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.5rem;
+  align-items: stretch;
+  margin-top: 0.6rem;
+}
+.joinRow :global(.btnGhost) {
+  width: auto;
+  margin-top: 0;
+  white-space: nowrap;
+  padding-left: 1.1rem;
+  padding-right: 1.1rem;
+}
+
+.okMsg {
+  color: var(--pitch);
+  font-weight: 700;
+  text-align: center;
+}
+
+/* ── Estado "liga creada" ── */
+.done {
+  position: relative;
+}
+.codeBox {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  width: 100%;
+  margin: 0.3rem 0 0.2rem;
+  padding: 0.85rem 1rem;
+  border-radius: 16px;
+  background: var(--gold-soft);
+  border: 1.5px dashed rgba(233, 196, 106, 0.4);
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.codeBox:hover {
+  border-color: var(--gold);
+  background: rgba(233, 196, 106, 0.2);
+}
+.codeVal {
+  font-size: 1.32rem;
+  font-weight: 900;
+  letter-spacing: 0.22em;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+}
+.codeCopy {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex-shrink: 0;
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: var(--text-secondary);
+}
+
+/* ── Foco visible (teclado) ── */
+.close:focus-visible,
+.codeBox:focus-visible,
+.friendsBtn:focus-visible,
+.playBtn:focus-visible {
+  outline: 2px solid var(--celeste);
+  outline-offset: 2px;
+}
+
+/* ── Pantallas muy chicas (≤360px) ── */
+@media (max-width: 360px) {
+  .codeVal {
+    font-size: 1.15rem;
+    letter-spacing: 0.16em;
+  }
+  .joinRow :global(.btnGhost) {
+    padding-left: 0.85rem;
+    padding-right: 0.85rem;
+  }
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .overlay,
+  .sheet {
+    animation: none;
+  }
+}

@@ -69,8 +69,8 @@
   flex-direction: column;
 }
 
-/* ── Meta: Gran Premio (la copa, arriba de todo) ── */
-.goalRow { margin-bottom: 0.7rem; }
+/* ── Meta: Gran Premio (la copa, abajo de todo: el destino del camino) ── */
+.goalRow { margin-top: 0.7rem; }
 .goalNode {
   position: relative;
   display: flex;

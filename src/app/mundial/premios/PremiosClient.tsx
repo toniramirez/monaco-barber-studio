@@ -201,7 +201,7 @@ function JerseyHero() {
         <Shirt size={13} /> El premio que todos quieren
       </span>
       <h2 id="jersey-title" className={`${shell.shineTitle}`} style={{ fontWeight: 900, fontSize: "clamp(1.4rem, 6vw, 1.9rem)", lineHeight: 1.1 }}>
-        La camiseta oficial
+        La camiseta de la selección
       </h2>
 
       {/* Wrapper externo: float idle (no acumula con la rotación del flip). */}
@@ -227,7 +227,7 @@ function JerseyHero() {
             >
               <Image
                 src="/camiseta_frente.png"
-                alt="Camiseta oficial — frente"
+                alt="Camiseta de la selección — frente"
                 width={280}
                 height={373}
                 className={styles.jerseyImg}
@@ -243,7 +243,7 @@ function JerseyHero() {
             >
               <Image
                 src="/camiseta_atras.png"
-                alt="Camiseta oficial — espalda con MESSI 10"
+                alt="Camiseta de la selección — espalda con MESSI 10"
                 width={280}
                 height={373}
                 className={styles.jerseyImg}
@@ -266,7 +266,7 @@ function JerseyHero() {
               <span className={styles.jerseyFaceLabel}>Frente</span>
               <Image
                 src="/camiseta_frente.png"
-                alt="Camiseta oficial — frente"
+                alt="Camiseta de la selección — frente"
                 width={280}
                 height={373}
                 className={styles.jerseyImg}
@@ -278,7 +278,7 @@ function JerseyHero() {
               <span className={styles.jerseyFaceLabel}>MESSI · 10</span>
               <Image
                 src="/camiseta_atras.png"
-                alt="Camiseta oficial — espalda con MESSI 10"
+                alt="Camiseta de la selección — espalda con MESSI 10"
                 width={280}
                 height={373}
                 className={styles.jerseyImg}
@@ -301,7 +301,7 @@ function JerseyHero() {
       </button>
 
       <p className={styles.jerseyCopy}>
-        La camiseta oficial. <strong>Se la lleva quien llega lejos</strong>: de
+        La camiseta de la selección. <strong>Se la lleva quien llega lejos</strong>: de
         16vos para arriba y todo el podio del Gran Premio.
       </p>
     </Reveal>
@@ -329,7 +329,7 @@ const CHALLENGES: Challenge[] = [
     phase: "16vos · 8vos",
     ico: <Shirt size={20} aria-hidden="true" />,
     reward: <>1 mes + camiseta</>,
-    note: "Ganás el desafío y te llevás la oficial.",
+    note: "Ganás el desafío y te llevás la de la selección.",
     thumb: true,
   },
   {
@@ -523,7 +523,7 @@ function GrandPrize() {
 
       <p className={styles.grandFoot}>
         <Trophy size={13} style={{ verticalAlign: "-2px", marginRight: "0.3rem", color: "var(--gold)" }} aria-hidden="true" />
-        Las 3 con la camiseta oficial incluida.
+        Las 3 con la camiseta de la selección incluida.
       </p>
     </Reveal>
   );

@@ -5,11 +5,11 @@ import { getProdeParticipantId } from "@/lib/prode/session";
 
 export const dynamic = "force-dynamic";
 
-const WELCOME_DISCOUNT = 25; // 25% OFF de bienvenida
+const WELCOME_DISCOUNT = 20; // 20% OFF de bienvenida (coincide con reward_catalog "Cupón Mundial: Bienvenida")
 const WELCOME_WINDOW_MS = 48 * 60 * 60 * 1000; // 48 horas
 
 /**
- * Premios — la vidriera del Prode. Bienvenida 25% (timer 48h), la camiseta como
+ * Premios — la vidriera del Prode. Bienvenida 20% (timer 48h), la camiseta como
  * objeto-héroe (flip 3D), premios por desafío y el podio del Gran Premio.
  * El timer de 48h se ancla en la creación del cupón de bienvenida del jugador.
  */

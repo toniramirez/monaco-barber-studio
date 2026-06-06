@@ -19,8 +19,9 @@ import {
  * con los picks del jugador (ParticipantSummary). Las recompensas son display
  * por ahora (la premiación por-desafío es follow-up de backend).
  *
- * Orden del array = orden del sendero de ABAJO (Desafío 1) hacia ARRIBA (Final).
- * El render del sendero lo invierte (sube hacia la copa).
+ * Orden del array = orden del torneo (Desafío 1 → Final) = orden visual del
+ * sendero de ARRIBA (La Largada + Desafío 1) hacia ABAJO (La Final → Gran
+ * Premio). El render NO invierte: dibuja el array tal cual, de arriba hacia abajo.
  */
 export const CHALLENGES: ChallengeDef[] = [
   {
@@ -187,7 +188,7 @@ export async function getChallengesState(
   // Cantidad de preguntas de la Gran Quiniela respondidas (6 preguntas fijas).
   const quinielaDone = summary?.quiniela?.length ?? 0;
 
-  return CHALLENGES.map((def) => {
+  const states: ChallengeState[] = CHALLENGES.map((def) => {
     if (def.kind === "quiniela") {
       const total = 6;
       const done = Math.min(quinielaDone, total);
@@ -204,6 +205,28 @@ export async function getChallengesState(
     const openUnplayed = playable.filter((m) => !pickedMatchIds.has(m.id) && isOpen(m)).length;
     return { ...def, total, done, state: deriveState(total, done, openUnplayed) };
   });
+
+  // Apertura progresiva del "Camino al Título": de los Desafíos de partidos sólo
+  // queda jugable el PRIMERO sin completar (hoy, el Desafío 1). Los siguientes
+  // muestran "Próximamente" hasta que completes el anterior — así el camino se
+  // abre paso a paso en vez de exponer todo de una. La Gran Quiniela (special,
+  // kind="quiniela") queda fuera de la secuencia: es el "cofre" siempre abierto.
+  let activeReached = false;
+  for (const s of states) {
+    if (s.kind !== "matches") continue;
+    if (s.state === "completed") continue; // los ya completados no se relockean
+    if (!activeReached) {
+      // El primer Desafío de partidos JUGABLE toma el "slot activo" y conserva su
+      // estado natural. Si todavía está bloqueado (sin equipos), no consume el
+      // slot: seguimos buscando, así la apertura no se "gasta" en una etapa que
+      // aún no abrió (ej: eliminatorias sin sorteo entre fase de grupos y 16vos).
+      if (s.state !== "locked") activeReached = true;
+      continue;
+    }
+    s.state = "locked"; // todo lo posterior al activo: bloqueado hasta su turno
+  }
+
+  return states;
 }
 
 /**

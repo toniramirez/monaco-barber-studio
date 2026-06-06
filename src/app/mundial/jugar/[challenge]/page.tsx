@@ -2,7 +2,7 @@ import { redirect, notFound } from "next/navigation";
 import MatchDeck from "./MatchDeck";
 import QuinielaPlay from "./QuinielaPlay";
 import { getTournament, getQuestions, getTeams } from "@/lib/prode/data";
-import { getChallengeBySlug, getChallengeMatches } from "@/lib/prode/challenges";
+import { getChallengeBySlug, getChallengeMatches, getChallengesState } from "@/lib/prode/challenges";
 import { getMyState } from "../../actions";
 import { getProdeParticipantId } from "@/lib/prode/session";
 
@@ -39,6 +39,11 @@ export default async function ChallengePage({
   const myState = await getMyState();
   const lockAt = tournament.predictions_lock_at ?? tournament.starts_at;
   const lockedAll = isPast(lockAt);
+
+  // Apertura progresiva: si el Desafío todavía está bloqueado (no es el activo del
+  // camino), no se puede jugar por URL directa → vuelta al hub.
+  const states = await getChallengesState(tournament.id, myState);
+  if (states.find((s) => s.slug === slug)?.state === "locked") redirect("/mundial/jugar");
 
   if (challenge.kind === "quiniela") {
     const [questions, teams] = await Promise.all([
