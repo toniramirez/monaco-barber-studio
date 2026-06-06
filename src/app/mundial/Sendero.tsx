@@ -24,10 +24,10 @@ import {
   Gift,
   Shirt,
   Scissors,
-  Disc3,
   Sparkles,
   Trophy,
 } from "lucide-react";
+import { RouletteIcon } from "./RouletteIcon";
 import shell from "./Shell.module.css";
 import styles from "./Sendero.module.css";
 import type { ChallengeState, ChallengeRewardTier } from "@/lib/prode/types";
@@ -48,7 +48,7 @@ function rewardIcon(tier: ChallengeRewardTier) {
     case "jersey":
       return <Shirt size={13} aria-hidden="true" />;
     case "roulette":
-      return <Disc3 size={13} aria-hidden="true" />;
+      return <RouletteIcon size={13} />;
     case "special":
       return <Crown size={13} aria-hidden="true" />;
   }

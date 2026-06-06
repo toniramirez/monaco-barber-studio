@@ -17,11 +17,22 @@
 /* ─────────────────────────── Hero ─────────────────────────── */
 .hero {
   position: relative;
-  overflow: hidden;
   text-align: center;
   padding: 1.6rem 0.4rem 0.4rem;
-  /* halo de reflectores de estadio, suave detrás del FX */
-  border-radius: 24px;
+}
+
+/* Capa decorativa full-bleed: arena + confeti a 100vw, clipeada sólo en su
+   propia caja (no en el ancho del carril) → el confeti llega a los bordes. */
+.heroBleed {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 100vw;
+  transform: translateX(-50%);
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
 }
 .hero::before {
   content: "";

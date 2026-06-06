@@ -17,12 +17,12 @@ import {
   Clock,
   Sparkles,
   ArrowRight,
-  Disc3,
   Medal,
 } from "lucide-react";
 import shell from "../Shell.module.css";
 import styles from "./Premios.module.css";
 import Countdown from "../Countdown";
+import { RouletteIcon } from "../RouletteIcon";
 
 type Props = {
   registered: boolean;
@@ -334,7 +334,7 @@ const CHALLENGES: Challenge[] = [
   },
   {
     phase: "4tos · Semis · 3er · Final",
-    ico: <Disc3 size={20} aria-hidden="true" />,
+    ico: <RouletteIcon size={20} />,
     reward: <>Ruleta por puntos</>,
     note: "Se activa en fase final.",
     teaser: true,

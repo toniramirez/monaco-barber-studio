@@ -172,7 +172,8 @@
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: rgba(0, 0, 0, 0.34);
+  /* fondo OPACO: la cuerda queda DETRÁS, dentro del círculo sólo se ve la pelota */
+  background: #1c1e23;
   border: 3px solid var(--card-border);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45), inset 0 2px 6px rgba(255, 255, 255, 0.04);
   transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, box-shadow 0.25s ease;
@@ -191,7 +192,7 @@
 /* ── Estado: open ── */
 .nodeOpen {
   border-color: rgba(121, 192, 242, 0.65);
-  background: linear-gradient(180deg, rgba(121, 192, 242, 0.18), rgba(0, 0, 0, 0.34));
+  background: linear-gradient(180deg, rgba(121, 192, 242, 0.22), #1c1e23 78%);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(121, 192, 242, 0.3), 0 0 22px rgba(121, 192, 242, 0.22);
   animation: nodePulse 2.6s ease-in-out infinite;
 }
@@ -203,7 +204,7 @@
 /* ── Estado: in_progress — borde dorado + anillo conic ── */
 .nodeProgress {
   border-color: rgba(233, 196, 106, 0.6);
-  background: linear-gradient(180deg, rgba(233, 196, 106, 0.18), rgba(0, 0, 0, 0.34));
+  background: linear-gradient(180deg, rgba(233, 196, 106, 0.22), #1c1e23 78%);
 }
 .ring {
   position: absolute;
@@ -225,10 +226,11 @@
 
 /* ── Estado: locked ── */
 .nodeLocked {
-  border-color: rgba(255, 255, 255, 0.08);
-  background: rgba(0, 0, 0, 0.32);
-  opacity: 0.55;
-  filter: grayscale(0.4);
+  border-color: rgba(255, 255, 255, 0.06);
+  /* opaco también (sin opacity translúcida) para tapar la cuerda; el look
+     "bloqueado" lo dan el borde tenue + el candado gris + el grayscale */
+  background: #17191d;
+  filter: grayscale(0.5);
 }
 
 /* ── Ficha del jugador (moneda con inicial) sobre el nodo ── */

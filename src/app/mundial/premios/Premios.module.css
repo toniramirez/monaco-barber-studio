@@ -209,15 +209,13 @@
 }
 /* Indicador "girá" flotante sobre la camiseta. */
 .jerseyTwirl {
-  position: absolute;
-  bottom: -0.2rem;
-  right: 50%;
-  transform: translateX(50%);
+  position: relative;
   z-index: 2;
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  padding: 0.42rem 0.9rem;
+  margin: 1rem auto 0;
+  padding: 0.46rem 1rem;
   font-size: 0.76rem;
   font-weight: 800;
   letter-spacing: 0.02em;
@@ -374,6 +372,7 @@
   position: relative;
   overflow: hidden;
   text-align: center;
+  margin-top: 2.1rem;
   padding: clamp(1.5rem, 5vw, 2rem) clamp(1rem, 4vw, 1.6rem) clamp(1.5rem, 4vw, 1.9rem);
   border-color: rgba(233, 196, 106, 0.45);
   background: linear-gradient(180deg, rgba(233, 196, 106, 0.13), var(--card) 58%);

@@ -38,18 +38,20 @@ export default async function MundialPage() {
   return (
     <main className={`${shell.content} ${styles.homeMain}`}>
       <section className={styles.hero}>
-        <HeroFX />
-        {/* Arena de fondo: la pelota reventando la red, tenue, fundida hacia los bordes.
-            Vía next/image (AVIF/WebP optimizado) en vez del PNG crudo de 1.8MB. */}
-        <div className={styles.heroArena} aria-hidden="true">
-          <Image
-            src="/fondo_prode.png"
-            alt=""
-            fill
-            priority
-            sizes="(max-width: 560px) 100vw, 560px"
-            className={styles.heroArenaImg}
-          />
+        {/* Capa decorativa full-bleed (100vw): arena + confeti llegan a los bordes
+            de la pantalla, no se cortan en el ancho del carril. */}
+        <div className={styles.heroBleed} aria-hidden="true">
+          <div className={styles.heroArena}>
+            <Image
+              src="/fondo_prode.png"
+              alt=""
+              fill
+              priority
+              sizes="100vw"
+              className={styles.heroArenaImg}
+            />
+          </div>
+          <HeroFX />
         </div>
 
         <div className={styles.heroInner}>
