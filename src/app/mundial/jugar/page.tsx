@@ -37,8 +37,11 @@ export default async function JugarPage() {
   }
 
   const myState = await getMyState();
-  const lockAt = tournament.predictions_lock_at ?? tournament.starts_at;
-  const locked = isPast(lockAt);
+  // El camino es sólo-lectura recién cuando TERMINA el torneo (no cuando arranca el
+  // primer partido). Los Desafíos de partidos se cierran uno por uno en su kickoff;
+  // la Gran Quiniela cierra al inicio (predictions_lock_at) → se pasa aparte al cofre.
+  const tournamentOver = isPast(tournament.ends_at);
+  const quinielaLocked = isPast(tournament.predictions_lock_at ?? tournament.starts_at);
 
   if (!myState) {
     return (
@@ -56,7 +59,8 @@ export default async function JugarPage() {
         challenges={challenges}
         displayName={myState.display_name}
         totalPoints={myState.total_points}
-        locked={locked}
+        locked={tournamentOver}
+        quinielaLocked={quinielaLocked}
       />
     </main>
   );

@@ -37,8 +37,10 @@ type Props = {
   challenges: ChallengeState[];
   displayName: string;
   totalPoints: number;
-  /** Torneo cerrado / sólo-lectura: los CTA dicen "Ver". */
+  /** Torneo TERMINADO / sólo-lectura: los CTA dicen "Ver". (No es "arrancó el 1er partido".) */
   locked: boolean;
+  /** La Gran Quiniela cerró (primer kickoff del torneo). Sólo afecta al cofre. */
+  quinielaLocked: boolean;
 };
 
 /* Ícono de la recompensa por tier (lucide, sin emojis). */
@@ -83,7 +85,7 @@ const rowVariants: Variants = {
   },
 };
 
-export default function Sendero({ challenges, displayName, totalPoints, locked }: Props) {
+export default function Sendero({ challenges, displayName, totalPoints, locked, quinielaLocked }: Props) {
   const rm = useReducedMotion();
 
   // El cofre (La Gran Quiniela, special) se separa para insertarlo como nodo
@@ -209,7 +211,7 @@ export default function Sendero({ challenges, displayName, totalPoints, locked }
         {rows.map((r, i) => {
           const last = i === rows.length - 1;
           return r.type === "cofre" ? (
-            <CofreRow key="cofre" chest={chest!} locked={locked} rm={!!rm} last={last} />
+            <CofreRow key="cofre" chest={chest!} locked={locked || quinielaLocked} rm={!!rm} last={last} />
           ) : (
             <PathRow
               key={r.c.key}

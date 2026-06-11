@@ -31,7 +31,6 @@ type Props = {
   exactBonus: number;
   featuredMultiplier: number;
   participantId: string;
-  lockedAll: boolean;
 };
 
 /* Confeti del festejo (posiciones DETERMINISTAS por índice; SSR-safe). */
@@ -53,9 +52,14 @@ function computeCountdown(target: string, nowSec: number | null) {
   return { ready, done, d: Math.floor(s / 86400), h: Math.floor((s % 86400) / 3600), m: Math.floor((s % 3600) / 60) };
 }
 
-/** ¿El partido sigue ABIERTO para jugar? (programado y aún no arrancó). */
-function isMatchOpen(m: ChallengeMatch, nowSec: number | null, lockedAll: boolean): boolean {
-  if (!m.home || !m.away || lockedAll) return false;
+/**
+ * ¿El partido sigue ABIERTO para jugar? Cada partido se cierra SOLO en su propio
+ * kickoff (no hay candado global de torneo para los partidos: eso es exclusivo de
+ * la Gran Quiniela). Alineado con la RPC prode_submit_match_prediction, que valida
+ * now() >= kickoff_at por partido.
+ */
+function isMatchOpen(m: ChallengeMatch, nowSec: number | null): boolean {
+  if (!m.home || !m.away) return false;
   if (m.status !== "scheduled") return false;
   if (nowSec === null) return true;
   return new Date(m.kickoff_at).getTime() > nowSec * 1000;
@@ -103,7 +107,6 @@ export default function MatchDeck({
   exactBonus,
   featuredMultiplier,
   participantId,
-  lockedAll,
 }: Props) {
   const rm = useReducedMotion();
   const total = matches.length;
@@ -142,8 +145,8 @@ export default function MatchDeck({
   // ── Progreso: cuentan los que jugaste + los que siguen abiertos ──
   const isDone = useCallback((id: string) => statuses[id] === "saved", [statuses]);
   const counting = useMemo(
-    () => matches.filter((m) => isDone(m.id) || isMatchOpen(m, nowSec, lockedAll)),
-    [matches, isDone, nowSec, lockedAll],
+    () => matches.filter((m) => isDone(m.id) || isMatchOpen(m, nowSec)),
+    [matches, isDone, nowSec],
   );
   const playableCount = counting.length;
   const donePlayable = useMemo(() => counting.filter((m) => isDone(m.id)).length, [counting, isDone]);
@@ -204,8 +207,8 @@ export default function MatchDeck({
 
   // "Ir al primero sin jugar": scrollea a la card (no hay swipe).
   const firstUnplayed = useMemo(
-    () => matches.find((m) => isMatchOpen(m, nowSec, lockedAll) && !isDone(m.id))?.id ?? null,
-    [matches, nowSec, lockedAll, isDone],
+    () => matches.find((m) => isMatchOpen(m, nowSec) && !isDone(m.id))?.id ?? null,
+    [matches, nowSec, isDone],
   );
   const scrollToFirst = useCallback(() => {
     if (!firstUnplayed) return;
@@ -384,7 +387,6 @@ export default function MatchDeck({
                   match={m}
                   rm={!!rm}
                   nowSec={nowSec}
-                  lockedAll={lockedAll}
                   score={scores[m.id] ?? { home: 0, away: 0 }}
                   touched={!!touched[m.id]}
                   status={statuses[m.id] ?? "idle"}
@@ -417,7 +419,6 @@ const MatchCard = forwardRef<
     match: ChallengeMatch;
     rm: boolean;
     nowSec: number | null;
-    lockedAll: boolean;
     score: Score;
     touched: boolean;
     status: SaveStatus;
@@ -429,13 +430,13 @@ const MatchCard = forwardRef<
     onScore: (s: Score) => void;
   }
 >(function MatchCard(
-  { match, rm, nowSec, lockedAll, score, touched, status, savedScore, error, outcomePoints, exactBonus, featuredMultiplier, onScore },
+  { match, rm, nowSec, score, touched, status, savedScore, error, outcomePoints, exactBonus, featuredMultiplier, onScore },
   ref,
 ) {
   const cd = computeCountdown(match.kickoff_at, nowSec);
   const kickedOff = cd.done;
   const playable = !!match.home && !!match.away;
-  const readOnly = lockedAll || kickedOff || !playable;
+  const readOnly = kickedOff || !playable;
   const editable = !readOnly && status !== "saving";
 
   const esHome = teamEsName(match.home);

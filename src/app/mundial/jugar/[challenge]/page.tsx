@@ -37,8 +37,12 @@ export default async function ChallengePage({
   if (!pid) redirect("/mundial/jugar");
 
   const myState = await getMyState();
+  // OJO: predictions_lock_at es un cutoff GLOBAL del torneo (hoy = kickoff del 1er
+  // partido). Solo aplica a la Gran Quiniela. Los partidos se cierran uno por uno
+  // en su propio kickoff (lo resuelve MatchDeck con match.kickoff_at). NO pasar
+  // este lock global a MatchDeck o congela partidos todavía abiertos.
   const lockAt = tournament.predictions_lock_at ?? tournament.starts_at;
-  const lockedAll = isPast(lockAt);
+  const quinielaLocked = isPast(lockAt);
 
   // Apertura progresiva: si el Desafío todavía está bloqueado (no es el activo del
   // camino), no se puede jugar por URL directa → vuelta al hub.
@@ -55,7 +59,7 @@ export default async function ChallengePage({
         questions={questions}
         teams={teams}
         myState={myState}
-        locked={lockedAll}
+        locked={quinielaLocked}
         rewardLabel={challenge.reward.label}
       />
     );
@@ -74,7 +78,6 @@ export default async function ChallengePage({
       exactBonus={num(settings.match_exact_bonus, 2)}
       featuredMultiplier={num(settings.featured_multiplier, 2)}
       participantId={pid}
-      lockedAll={lockedAll}
     />
   );
 }
