@@ -156,6 +156,37 @@
 
 /* ───────────────────────── Fixture ───────────────────────── */
 .fixture { display: flex; flex-direction: column; gap: 1.1rem; }
+
+/* Leyenda que decodifica el badge de puntos del pie de cada partido (una sola vez). */
+.scoreLegend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.26);
+  border: 1px solid var(--card-border);
+}
+.legendTitle {
+  flex-basis: 100%;
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.legendChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  line-height: 1.25;
+}
+.legendChip svg { color: var(--gold); flex-shrink: 0; }
+.legendChip b { color: var(--gold); font-weight: 900; }
 .group { display: flex; flex-direction: column; gap: 0.55rem; }
 .groupHead {
   display: flex;

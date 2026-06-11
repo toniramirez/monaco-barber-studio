@@ -6,7 +6,7 @@ import Image from "next/image";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   ChevronLeft, Plus, Minus, Check, Lock, Clock, Flame, Trophy, ArrowDown,
-  PartyPopper, Share2, CalendarClock, Crown,
+  PartyPopper, Share2, CalendarClock, Crown, Target,
 } from "lucide-react";
 import shell from "../../Shell.module.css";
 import styles from "./MatchDeck.module.css";
@@ -371,6 +371,22 @@ export default function MatchDeck({
 
       {/* ── El fixture: partidos por grupo, scrollable, editables en el lugar ── */}
       <div className={styles.fixture}>
+        {/* Leyenda: decodifica el badge "+N·+N" que aparece en el pie de cada partido. */}
+        <div className={styles.scoreLegend} role="note" aria-label="Cómo se puntúa cada partido">
+          <span className={styles.legendTitle}>Cómo sumás puntos</span>
+          <span className={styles.legendChip}>
+            <Trophy size={13} aria-hidden="true" /> <b>+{outcomePoints}</b> si acertás el resultado
+          </span>
+          <span className={styles.legendChip}>
+            <Target size={13} aria-hidden="true" /> <b>+{exactBonus}</b> extra si pegás el marcador exacto
+          </span>
+          {matches.some((m) => m.is_featured) && featuredMultiplier > 1 && (
+            <span className={styles.legendChip}>
+              <Flame size={13} aria-hidden="true" /> <b>×{featuredMultiplier}</b> en partido destacado
+            </span>
+          )}
+        </div>
+
         {groups.map((g) => (
           <section key={g.key} className={styles.group} aria-label={g.label}>
             <header className={styles.groupHead}>
@@ -517,9 +533,14 @@ const MatchCard = forwardRef<
         </span>
 
         <span className={styles.pts}>
-          <Trophy size={12} /> +{outcomePoints}·+{exactBonus}
-          {featured ? <em className={styles.mult}><Flame size={10} /> x{featuredMultiplier}</em> : null}
-          {timeLine ? <span className={styles.time}><Clock size={11} /> {timeLine}</span> : null}
+          <Trophy size={12} aria-hidden="true" />{" "}
+          <span
+            aria-label={`Suma ${outcomePoints} puntos si acertás el resultado, y ${exactBonus} más si pegás el marcador exacto${featured ? `, todo por ${featuredMultiplier} por ser partido destacado` : ""}`}
+          >
+            +{outcomePoints}·+{exactBonus}
+          </span>
+          {featured ? <em className={styles.mult}><Flame size={10} aria-hidden="true" /> x{featuredMultiplier}</em> : null}
+          {timeLine ? <span className={styles.time}><Clock size={11} aria-hidden="true" /> {timeLine}</span> : null}
         </span>
       </div>
     </section>
