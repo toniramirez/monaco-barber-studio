@@ -144,6 +144,30 @@ export async function getMyRewards(participantId: string): Promise<ProdeReward[]
   return (data as ProdeReward[]) ?? [];
 }
 
+/** Reglas del cupón de bienvenida desde el catálogo (mismas para todos, también para
+ *  visitantes no registrados). Sirve para comunicar la ventana lun–mié / cooldown / 15
+ *  días en el teaser de Premios ANTES de registrarse, sin depender de la fila del cliente. */
+export type WelcomeCouponRules = {
+  discount_pct: number | null;
+  activation_delay_minutes: number | null;
+  redeemable_weekdays: number[] | null;
+  validity_days: number | null;
+};
+
+export const getWelcomeCouponRules = cache(async (): Promise<WelcomeCouponRules | null> => {
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("reward_catalog")
+    .select("discount_pct, activation_delay_minutes, redeemable_weekdays, validity_days")
+    .eq("organization_id", MONACO_ORG)
+    .eq("is_active", true)
+    .ilike("name", "%bienvenida%")
+    .order("created_at", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+  return (data as WelcomeCouponRules) ?? null;
+});
+
 /**
  * Datos de un jugador para su placa compartible (OG image): nombre, puntos y a
  * quién le apostó como campeón (si ya lo eligió). Una sola RPC (prode_share_card)

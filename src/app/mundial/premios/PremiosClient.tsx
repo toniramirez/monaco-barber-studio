@@ -18,17 +18,32 @@ import {
   Sparkles,
   ArrowRight,
   Medal,
+  Lock,
+  CalendarDays,
+  CheckCircle2,
+  Hourglass,
 } from "lucide-react";
 import shell from "../Shell.module.css";
 import styles from "./Premios.module.css";
 import Countdown from "../Countdown";
 import { RouletteIcon } from "../RouletteIcon";
+import {
+  couponPhase,
+  weekdayPhraseShort,
+  weekdayPhraseLong,
+  fmtDateAR,
+  type CouponView,
+} from "@/lib/prode/coupon";
 
 type Props = {
   registered: boolean;
   welcomeDiscountPct: number;
-  welcomeExpiresAt: string | null;
-  hasWelcomeReward: boolean;
+  /** Vista temporal del cupón de bienvenida del jugador (null si no está registrado). */
+  welcome: CouponView | null;
+  /** Días canjeables del catálogo (fallback para invitados, que no tienen cupón aún). */
+  ruleWeekdays: number[] | null;
+  /** Validez en días del cupón (catálogo) — para comunicar la ventana sin hardcodear. */
+  validityDays: number;
 };
 
 /* Entrada con stagger al entrar en viewport (una sola vez). Reduced-motion la
@@ -69,8 +84,9 @@ function Reveal({
 export default function PremiosClient({
   registered,
   welcomeDiscountPct,
-  welcomeExpiresAt,
-  hasWelcomeReward,
+  welcome,
+  ruleWeekdays,
+  validityDays,
 }: Props) {
   return (
     <>
@@ -86,8 +102,9 @@ export default function PremiosClient({
       <WelcomeTicket
         registered={registered}
         welcomeDiscountPct={welcomeDiscountPct}
-        welcomeExpiresAt={welcomeExpiresAt}
-        hasWelcomeReward={hasWelcomeReward}
+        welcome={welcome}
+        ruleWeekdays={ruleWeekdays}
+        validityDays={validityDays}
       />
 
       <JerseyHero />
@@ -108,24 +125,53 @@ export default function PremiosClient({
   );
 }
 
-/* ─────────────────────────── 1 · Ticket de bienvenida ─────────────────────────── */
+/* ─────────────────────────── 1 · Ticket de bienvenida ───────────────────────────
+   El cupón tiene reglas reales del backend: cooldown de 2 h (recién canjeable un
+   rato DESPUÉS de crear la cuenta → es para la próxima visita, no para mientras te
+   cortás) + ventana lun–mié + 15 días. La fase se calcula con el reloj del cliente
+   (`useNowMs`): en SSR/primer render es null → estado neutro idéntico al server (sin
+   romper hidratación); ya en el cliente conmuta a cooldown/activo/etc. */
 function WelcomeTicket({
   registered,
   welcomeDiscountPct,
-  welcomeExpiresAt,
-  hasWelcomeReward,
-}: Props) {
-  // "Se te pasó" si está registrado y ya no tiene el cupón disponible, o si la
-  // ventana de 48h ya venció. El reloj se lee vía useNow (null en SSR) para no
-  // romper la hidratación: en el server expired=false y, ya en el cliente, si la
-  // fecha pasó conmutamos a estado "vencido" (el Countdown llega a su fin a la par).
+  welcome,
+  ruleWeekdays,
+  validityDays,
+}: {
+  registered: boolean;
+  welcomeDiscountPct: number;
+  welcome: CouponView | null;
+  ruleWeekdays: number[] | null;
+  validityDays: number;
+}) {
   const now = useNowMs();
-  const expired =
-    now !== null && welcomeExpiresAt
-      ? new Date(welcomeExpiresAt).getTime() <= now
-      : false;
-  const missed = registered && (!hasWelcomeReward || expired);
-  const showTimer = registered && !!welcomeExpiresAt && !missed;
+  const ready = now !== null;
+
+  // Días a mostrar: si hay cupón del jugador, los suyos; si es invitado, los del catálogo.
+  const displayWeekdays = welcome ? welcome.redeemableWeekdays : ruleWeekdays;
+  const weekdaysShort = weekdayPhraseShort(displayWeekdays);
+  const weekdaysLong = weekdayPhraseLong(displayWeekdays);
+
+  // Fase: sólo con reloj de cliente. En SSR/primer render → null (estado neutro).
+  const phase = ready && welcome ? couponPhase(welcome, now) : null;
+  const inCooldown = phase === "cooldown";
+  const isMissed = phase === "redeemed" || phase === "expired";
+
+  const lead = !registered
+    ? "Sumate al Prode y es tuyo para tu próxima visita."
+    : phase === "redeemed"
+      ? `Ya usaste tu ${welcomeDiscountPct}% — seguí jugando, hay más.`
+      : phase === "expired"
+        ? "Tu ventana se cerró — seguí jugando, hay más premios."
+        : "Tu regalo por sumarte al Prode.";
+
+  // Target del reloj: cooldown → activación; activo → vencimiento.
+  const timerTarget = inCooldown ? welcome?.activatesAt ?? null : welcome?.expiresAt ?? null;
+  const showTimer = registered && !!welcome && !isMissed && !!timerTarget;
+
+  // Las reglas-chip se muestran cuando no hay una nota dedicada (cooldown/off-day) ni
+  // el estado terminal: invitado, estado neutro y "activo hoy".
+  const showRules = !isMissed && !(ready && (inCooldown || phase === "active_off_day"));
 
   return (
     <Reveal
@@ -143,26 +189,77 @@ function WelcomeTicket({
         {welcomeDiscountPct}
         <span className={styles.pct}>% OFF</span>
       </h2>
-      <p className={styles.ticketLead}>
-        {registered
-          ? "Tu regalo por sumarte al Prode."
-          : "Registrate y arrancás el reloj de 48h."}
-      </p>
+      <p className={styles.ticketLead}>{lead}</p>
+
+      {/* Chip de estado (sólo con reloj de cliente, para no romper la hidratación) */}
+      {ready && registered && welcome && !isMissed && (
+        inCooldown ? (
+          <span className={`${styles.ticketStatus} ${styles.statusCooldown}`}>
+            <Lock size={13} aria-hidden="true" /> Se activa pronto
+          </span>
+        ) : phase === "active_today" ? (
+          <span className={`${styles.ticketStatus} ${styles.statusActive}`}>
+            <CheckCircle2 size={13} aria-hidden="true" /> Activo · hoy sí
+          </span>
+        ) : (
+          <span className={`${styles.ticketStatus} ${styles.statusOff}`}>
+            <CalendarDays size={13} aria-hidden="true" /> Canjeable {weekdaysShort}
+          </span>
+        )
+      )}
 
       {showTimer && (
         <div className={styles.ticketTimer}>
-          <span className={styles.ticketTimerLabel}>
-            <Clock size={13} aria-hidden="true" /> Tu {welcomeDiscountPct}% vence en
+          <span
+            className={`${styles.ticketTimerLabel} ${inCooldown ? styles.ticketTimerLabelCooldown : ""}`}
+          >
+            <Clock size={13} aria-hidden="true" />{" "}
+            {inCooldown ? "Se activa en" : `Tu ${welcomeDiscountPct}% vence en`}
           </span>
-          <Countdown target={welcomeExpiresAt!} />
+          <Countdown
+            target={timerTarget!}
+            compact={inCooldown}
+            zero={null}
+            ariaLabel="Tiempo del cupón de bienvenida"
+          />
         </div>
       )}
 
-      {missed && (
+      {/* Nota contextual según la fase */}
+      {ready && inCooldown && (
+        <p className={`${styles.ticketNote} ${styles.noteCooldown}`} role="status">
+          <Lock size={15} aria-hidden="true" />
+          Es para tu próxima visita: se activa 2&nbsp;h después de crear tu cuenta. Después lo canjeás {weekdaysLong}
+          {welcome?.expiresAt ? ` (válido hasta el ${fmtDateAR(welcome.expiresAt)})` : ""}.
+        </p>
+      )}
+      {ready && phase === "active_off_day" && (
+        <p className={`${styles.ticketNote} ${styles.noteOff}`} role="status">
+          <CalendarDays size={15} aria-hidden="true" />
+          Hoy no — tu {welcomeDiscountPct}% se canjea {weekdaysLong}. ¡Te esperamos!
+        </p>
+      )}
+      {isMissed && (
         <p className={styles.ticketExpired} role="status">
           <Clock size={15} aria-hidden="true" />
-          Se te pasó — pero seguí jugando, hay más premios.
+          {phase === "redeemed"
+            ? `Ya canjeaste tu ${welcomeDiscountPct}% — seguí jugando, hay más premios.`
+            : "Se te pasó — pero seguí jugando, hay más premios."}
         </p>
+      )}
+
+      {showRules && (
+        <ul className={styles.ticketRules} aria-label="Cómo funciona el cupón">
+          <li>
+            <Lock size={12} aria-hidden="true" /> Se activa 2&nbsp;h después
+          </li>
+          <li>
+            <CalendarDays size={12} aria-hidden="true" /> Canjeable {weekdaysShort}
+          </li>
+          <li>
+            <Hourglass size={12} aria-hidden="true" /> Vale {validityDays} días
+          </li>
+        </ul>
       )}
 
       {registered ? (
@@ -182,7 +279,9 @@ function WelcomeTicket({
       )}
 
       <p className={styles.ticketHint}>
-        Canjealo en tu primer corte en Monaco. Una vez por persona.
+        {registered
+          ? "Mostrale el QR al barbero en Monaco. Una vez por persona."
+          : "Canjealo en tu próxima visita a Monaco. Una vez por persona."}
       </p>
     </Reveal>
   );

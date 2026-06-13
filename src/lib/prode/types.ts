@@ -85,6 +85,10 @@ export type ProdeReward = {
   qr_code: string;
   expires_at: string | null;
   created_at: string;
+  /** Minutos de activación diferida desde created_at (cooldown). 0/null = sin cooldown. */
+  activation_delay_minutes: number | null;
+  /** Días ISO permitidos para canjear (1=lun..7=dom). null = cualquier día. */
+  redeemable_weekdays: number[] | null;
 };
 
 // ───────────────────────── Desafíos ("Camino al Título") ─────────────────────────

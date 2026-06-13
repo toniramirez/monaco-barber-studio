@@ -5,13 +5,21 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   User, Trophy, ListChecks, Users, Share2, LogOut, ChevronRight, Lock, ArrowLeft,
-  Gift, Ticket, Crown, QrCode, X, CheckCircle2,
+  Gift, Ticket, Crown, QrCode, X, CheckCircle2, Clock, CalendarDays,
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import shell from "../Shell.module.css";
 import styles from "./Cuenta.module.css";
+import Countdown from "../Countdown";
 import type { ProdeQuestion, ProdeTeam, ParticipantSummary, ProdeReward } from "@/lib/prode/types";
 import { teamEsName } from "@/lib/prode/countries";
+import { useNowMs } from "@/lib/prode/clock";
+import {
+  couponPhase,
+  couponViewFromReward,
+  weekdayPhraseLong,
+  formatShortDuration,
+} from "@/lib/prode/coupon";
 import { createLeague, joinLeague, logoutProde, getMyInviteCode } from "../actions";
 
 type Props = {
@@ -48,6 +56,146 @@ function fmtDate(iso: string | null): string {
   } catch {
     return "";
   }
+}
+
+/**
+ * Fila de un premio en "Mis premios". Usa su propio reloj (useNowMs) para que sólo
+ * este widget tickee por segundo (no toda la cuenta) y para mostrar, si el cupón
+ * está en cooldown, cuánto falta para que se active en vez del botón de canje.
+ */
+function PrizeRow({ reward, onOpen }: { reward: ProdeReward; onOpen: (r: ProdeReward) => void }) {
+  const now = useNowMs();
+  const ready = now !== null;
+  const kind = rewardKind(reward.name);
+  const Icon = kind === "grand" ? Crown : kind === "welcome" ? Ticket : Gift;
+  const view = couponViewFromReward(reward);
+  const phase = ready ? couponPhase(view, now) : null;
+  const available = reward.status === "available";
+  const inCooldown = phase === "cooldown";
+  // Dato del server (no temporal): si el cupón tiene activación diferida, PUEDE estar en
+  // cooldown. Mientras no haya reloj (SSR/primer render) no afirmamos "Canjear" para no
+  // insinuar un canje que el dueño quiso bloquear; al tickear conmuta a "en Xh" o "Canjear".
+  const maybeCooldown = (reward.activation_delay_minutes ?? 0) > 0;
+  // Un cupón puede estar 'available' en la DB pero vencido por tiempo (la RPC sólo lo
+  // flipea a 'expired' al intentar canjearlo). No ofrecemos canje/QR en ese caso para
+  // no mandar al cliente a la silla con un cupón que el barbero va a rechazar.
+  const showActions = available && phase !== "expired";
+
+  return (
+    <li className={`${styles.prizeItem} ${styles[`prize_${kind}`]} ${showActions ? "" : styles.prizeUsed}`}>
+      <span className={styles.prizeIcon} aria-hidden="true">
+        <Icon size={20} />
+      </span>
+      <div className={styles.prizeInfo}>
+        <span className={styles.prizeName}>{rewardShortName(reward.name)}</span>
+        <span className={styles.prizeValue}>{rewardValueLabel(reward)}</span>
+      </div>
+      {showActions ? (
+        !ready && maybeCooldown ? (
+          <button type="button" className={styles.prizeCooldownBtn} onClick={() => onOpen(reward)} aria-label="Ver cupón">
+            <Lock size={14} aria-hidden="true" /> Ver
+          </button>
+        ) : inCooldown && view.activatesAt ? (
+          <button type="button" className={styles.prizeCooldownBtn} onClick={() => onOpen(reward)}>
+            <Lock size={14} aria-hidden="true" />
+            {`en ${formatShortDuration(new Date(view.activatesAt).getTime() - now!)}`}
+          </button>
+        ) : (
+          <button type="button" className={styles.prizeQrBtn} onClick={() => onOpen(reward)}>
+            <QrCode size={16} aria-hidden="true" /> Canjear
+          </button>
+        )
+      ) : (
+        <span className={`${styles.prizeStatus} ${reward.status === "redeemed" ? styles.prizeStatusDone : ""}`}>
+          {reward.status === "redeemed" ? (
+            <>
+              <CheckCircle2 size={13} aria-hidden="true" /> Canjeado
+            </>
+          ) : (
+            "Vencido"
+          )}
+        </span>
+      )}
+    </li>
+  );
+}
+
+/**
+ * Contenido del modal de un premio. En cooldown bloquea el QR y muestra la cuenta
+ * regresiva de activación ("es para tu próxima visita"); ya activo, muestra el QR
+ * con un aviso del día (hoy sí / hoy no, según la ventana lun–mié).
+ */
+function RewardModalBody({ reward }: { reward: ProdeReward }) {
+  const now = useNowMs();
+  const view = couponViewFromReward(reward);
+  const phase = now !== null ? couponPhase(view, now) : null;
+  const weekdaysLong = weekdayPhraseLong(view.redeemableWeekdays);
+  // Array no-null (incluso []) = restricción activa, igual que couponPhase/el backend.
+  const hasWeekdayRule = view.redeemableWeekdays !== null;
+
+  // Terminal (canjeado / vencido, incluso vencido-por-tiempo): nunca mostramos un QR canjeable.
+  if (reward.status === "redeemed" || reward.status === "expired" || phase === "expired") {
+    const redeemed = reward.status === "redeemed";
+    return (
+      <>
+        <span className={styles.qrEyebrow}>{rewardValueLabel(reward)}</span>
+        <h3 className={styles.qrTitle}>{rewardShortName(reward.name)}</h3>
+        <div className={styles.qrLockBox} aria-hidden="true">
+          {redeemed ? <CheckCircle2 size={38} /> : <Clock size={38} />}
+        </div>
+        <p className={styles.qrHelp}>
+          {redeemed
+            ? "Ya canjeaste este premio."
+            : "Este cupón venció. ¡Pero seguí jugando, hay más premios!"}
+        </p>
+      </>
+    );
+  }
+
+  // Cooldown: no mostramos el QR todavía — el cupón es para la próxima visita.
+  if (phase === "cooldown" && view.activatesAt) {
+    return (
+      <>
+        <span className={styles.qrEyebrow}>{rewardValueLabel(reward)}</span>
+        <h3 className={styles.qrTitle}>{rewardShortName(reward.name)}</h3>
+        <div className={styles.qrLockBox} aria-hidden="true">
+          <Lock size={38} />
+        </div>
+        <span className={styles.qrLockLabel}>
+          <Clock size={13} aria-hidden="true" /> Se activa en
+        </span>
+        <Countdown target={view.activatesAt} compact zero={null} ariaLabel="Tiempo para que se active tu cupón" />
+        <p className={styles.qrHelp}>
+          Es para tu próxima visita: tu cupón se activa 2&nbsp;h después de crear tu cuenta.
+          {hasWeekdayRule ? ` Después lo canjeás ${weekdaysLong}.` : ""}
+        </p>
+        {view.expiresAt && <p className={styles.qrExpiry}>Válido hasta el {fmtDate(view.expiresAt)}</p>}
+      </>
+    );
+  }
+
+  // Activo (o premio sin reglas de tiempo): mostramos el QR para escanear.
+  return (
+    <>
+      <span className={styles.qrEyebrow}>{rewardValueLabel(reward)}</span>
+      <h3 className={styles.qrTitle}>{rewardShortName(reward.name)}</h3>
+      <div className={styles.qrBox}>
+        <QRCodeSVG value={reward.qr_code} size={216} level="M" bgColor="#ffffff" fgColor="#16181c" />
+      </div>
+      {hasWeekdayRule && phase === "active_off_day" && (
+        <p className={`${styles.qrDayBanner} ${styles.qrDayOff}`} role="status">
+          <CalendarDays size={14} aria-hidden="true" /> Hoy no — canjeable {weekdaysLong}
+        </p>
+      )}
+      {hasWeekdayRule && phase === "active_today" && (
+        <p className={`${styles.qrDayBanner} ${styles.qrDayOk}`} role="status">
+          <CheckCircle2 size={14} aria-hidden="true" /> Hoy lo podés canjear
+        </p>
+      )}
+      <p className={styles.qrHelp}>Mostrale este código al barbero en Monaco para canjear tu premio.</p>
+      {view.expiresAt && <p className={styles.qrExpiry}>Válido hasta el {fmtDate(view.expiresAt)}</p>}
+    </>
+  );
 }
 
 export default function CuentaClient({ myState, questions, teams, rewards, editable }: Props) {
@@ -211,42 +359,9 @@ export default function CuentaClient({ myState, questions, teams, rewards, edita
           </p>
         ) : (
           <ul className={styles.prizeList}>
-            {rewards.map((r) => {
-              const kind = rewardKind(r.name);
-              const Icon = kind === "grand" ? Crown : kind === "welcome" ? Ticket : Gift;
-              const available = r.status === "available";
-              return (
-                <li
-                  key={r.client_reward_id}
-                  className={`${styles.prizeItem} ${styles[`prize_${kind}`]} ${available ? "" : styles.prizeUsed}`}
-                >
-                  <span className={styles.prizeIcon} aria-hidden="true">
-                    <Icon size={20} />
-                  </span>
-                  <div className={styles.prizeInfo}>
-                    <span className={styles.prizeName}>{rewardShortName(r.name)}</span>
-                    <span className={styles.prizeValue}>{rewardValueLabel(r)}</span>
-                  </div>
-                  {available ? (
-                    <button type="button" className={styles.prizeQrBtn} onClick={() => setQrReward(r)}>
-                      <QrCode size={16} aria-hidden="true" /> Canjear
-                    </button>
-                  ) : (
-                    <span
-                      className={`${styles.prizeStatus} ${r.status === "redeemed" ? styles.prizeStatusDone : ""}`}
-                    >
-                      {r.status === "redeemed" ? (
-                        <>
-                          <CheckCircle2 size={13} aria-hidden="true" /> Canjeado
-                        </>
-                      ) : (
-                        "Vencido"
-                      )}
-                    </span>
-                  )}
-                </li>
-              );
-            })}
+            {rewards.map((r) => (
+              <PrizeRow key={r.client_reward_id} reward={r} onOpen={setQrReward} />
+            ))}
           </ul>
         )}
       </section>
@@ -378,17 +493,7 @@ export default function CuentaClient({ myState, questions, teams, rewards, edita
             <button type="button" className={styles.qrClose} aria-label="Cerrar" onClick={() => setQrReward(null)}>
               <X size={18} />
             </button>
-            <span className={styles.qrEyebrow}>{rewardValueLabel(qrReward)}</span>
-            <h3 className={styles.qrTitle}>{rewardShortName(qrReward.name)}</h3>
-            <div className={styles.qrBox}>
-              <QRCodeSVG value={qrReward.qr_code} size={216} level="M" bgColor="#ffffff" fgColor="#16181c" />
-            </div>
-            <p className={styles.qrHelp}>
-              Mostrale este código al barbero en Monaco para canjear tu premio.
-            </p>
-            {qrReward.expires_at && (
-              <p className={styles.qrExpiry}>Válido hasta el {fmtDate(qrReward.expires_at)}</p>
-            )}
+            <RewardModalBody reward={qrReward} />
           </div>
         </div>
       )}

@@ -286,6 +286,28 @@
 .prizeQrBtn:hover { transform: translateY(-1px); box-shadow: 0 9px 20px rgba(233, 196, 106, 0.36); }
 .prizeQrBtn:active { transform: scale(0.97); }
 
+/* Cupón en cooldown: chip celeste con cuenta regresiva en vez del botón de canje. */
+.prizeCooldownBtn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.46rem 0.72rem;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  font-variant-numeric: tabular-nums;
+  color: var(--celeste);
+  background: var(--celeste-soft);
+  border: 1px solid rgba(121, 192, 242, 0.32);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: transform 0.12s ease, background 0.2s ease;
+}
+.prizeCooldownBtn:hover { transform: translateY(-1px); }
+.prizeCooldownBtn:active { transform: scale(0.97); }
+.prizeCooldownBtn svg { flex-shrink: 0; }
+
 .prizeStatus {
   flex-shrink: 0;
   display: inline-flex;
@@ -374,6 +396,55 @@
   font-size: 0.74rem;
   font-weight: 700;
   color: var(--gold);
+}
+
+/* Estado bloqueado del modal (cupón en cooldown): candado + cuenta regresiva. */
+.qrLockBox {
+  margin: 0.5rem 0 0.1rem;
+  width: 88px;
+  height: 88px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--celeste);
+  background: var(--celeste-soft);
+  border: 1px solid rgba(121, 192, 242, 0.3);
+}
+.qrLockLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.1rem;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+.qrLockLabel svg { color: var(--celeste); }
+
+/* Aviso de día en el QR activo (hoy sí / hoy no, ventana lun–mié). */
+.qrDayBanner {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.1rem;
+  padding: 0.4rem 0.78rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+  border-radius: var(--radius-pill);
+  border: 1px solid transparent;
+}
+.qrDayBanner svg { flex-shrink: 0; }
+.qrDayOk {
+  color: var(--live-green, #2faa5a);
+  background: rgba(47, 170, 90, 0.14);
+  border-color: rgba(47, 170, 90, 0.32);
+}
+.qrDayOff {
+  color: var(--gold);
+  background: var(--gold-soft);
+  border-color: rgba(233, 196, 106, 0.3);
 }
 
 @keyframes qrFade {

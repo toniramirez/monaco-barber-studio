@@ -140,6 +140,111 @@
   color: var(--gold);
 }
 
+/* Chip de estado del cupón (cooldown / activo hoy / canjeable lun-mié). */
+.ticketStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0.95rem auto 0;
+  padding: 0.3rem 0.72rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-radius: var(--radius-pill);
+  border: 1px solid transparent;
+}
+.ticketStatus svg {
+  flex-shrink: 0;
+}
+.statusCooldown {
+  color: var(--celeste);
+  background: var(--celeste-soft);
+  border-color: rgba(121, 192, 242, 0.32);
+}
+.statusActive {
+  color: var(--live-green, #2faa5a);
+  background: rgba(47, 170, 90, 0.14);
+  border-color: rgba(47, 170, 90, 0.34);
+}
+.statusOff {
+  color: var(--gold);
+  background: var(--gold-soft);
+  border-color: rgba(233, 196, 106, 0.32);
+}
+
+/* En cooldown el label del reloj pasa a celeste para reforzar "se está preparando". */
+.ticketTimerLabelCooldown {
+  color: var(--celeste);
+}
+.ticketTimerLabelCooldown svg {
+  color: var(--celeste);
+}
+
+/* Nota contextual (cooldown / hoy-no). Mismo molde que .ticketExpired, otro tono. */
+.ticketNote {
+  margin: 1rem auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  max-width: 36ch;
+  font-size: 0.84rem;
+  font-weight: 700;
+  line-height: 1.4;
+  border-radius: 14px;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid transparent;
+}
+.ticketNote svg {
+  flex-shrink: 0;
+}
+.noteCooldown {
+  color: var(--celeste);
+  background: var(--celeste-soft);
+  border-color: rgba(121, 192, 242, 0.3);
+}
+.noteCooldown svg {
+  color: var(--celeste);
+}
+.noteOff {
+  color: var(--gold);
+  background: var(--gold-soft);
+  border-color: rgba(233, 196, 106, 0.3);
+}
+.noteOff svg {
+  color: var(--gold);
+}
+
+/* Reglas-chip: cómo funciona el cupón (3 pastillas chiquitas). */
+.ticketRules {
+  list-style: none;
+  margin: 1.05rem auto 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem;
+}
+.ticketRules li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.62rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-pill);
+}
+.ticketRules li svg {
+  flex-shrink: 0;
+  color: var(--celeste);
+  opacity: 0.9;
+}
+
 .ticketCta {
   margin-top: 1.3rem;
 }
@@ -316,9 +421,6 @@
 .challengeBody {
   flex: 1;
   min-width: 0;
-}
-.challengeTag {
-  margin-bottom: 0.4rem;
 }
 .challengePhase {
   display: inline-block;
