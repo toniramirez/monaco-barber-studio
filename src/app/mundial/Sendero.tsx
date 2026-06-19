@@ -26,12 +26,49 @@ import {
   Scissors,
   Sparkles,
   Trophy,
+  Flag,
 } from "lucide-react";
 import { RouletteIcon } from "./RouletteIcon";
 import PlayCta from "./PlayCta";
 import shell from "./Shell.module.css";
 import styles from "./Sendero.module.css";
+import { useNowMs } from "@/lib/prode/clock";
 import type { ChallengeState, ChallengeRewardTier } from "@/lib/prode/types";
+
+/* ───────────────────────── Cuenta regresiva del nodo locked ─────────────────────────
+   Sub-componente vivo para un nodo de GRUPOS bloqueado con `opensAt` futuro:
+   "Se abre en 4d 12h 30m". Compacto (sin segundos → no parpadea tanto).
+   SSR-safe: `useNowMs` se llama incondicionalmente al tope (regla de hooks) y
+   devuelve null en SSR / primer render del cliente → placeholder estable sin
+   romper hidratación. Sólo se monta para nodos locked CON opensAt. */
+function NodeCountdown({ target }: { target: string }) {
+  const now = useNowMs();
+  const diff = now === null ? null : Math.max(0, new Date(target).getTime() - now);
+
+  // SSR / primer render: placeholder estable (no leemos reloj en render).
+  if (diff === null) {
+    return <span className={styles.countdown}>Próximamente</span>;
+  }
+  if (diff === 0) {
+    return <span className={`${styles.countdown} ${styles.countdownReady}`}>¡Ya se abre!</span>;
+  }
+
+  const d = Math.floor(diff / 86400000);
+  const h = Math.floor((diff % 86400000) / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+
+  // Formato compacto: días+hs+min; si falta menos de 1 día, sólo hs+min.
+  const parts: string[] = [];
+  if (d > 0) parts.push(`${d}d`);
+  parts.push(`${h}h`, `${m}m`);
+
+  return (
+    <span className={styles.countdown}>
+      <span className={styles.countdownLabel}>Se abre en</span>
+      <span className={styles.countdownValue}>{parts.join(" ")}</span>
+    </span>
+  );
+}
 
 type Props = {
   challenges: ChallengeState[];
@@ -57,6 +94,29 @@ function rewardIcon(tier: ChallengeRewardTier) {
   }
 }
 
+/* Pelota de fútbol (lucide no trae balón) — SVG inline, hereda currentColor.
+   Mismo criterio que RouletteIcon: nada de emojis. */
+function BallIcon({ size = 28, className }: { size?: number; className?: string }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.7}
+      strokeLinejoin="round"
+      strokeLinecap="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="9.2" />
+      <path d="M12 6.6l3.4 2.5-1.3 4.1H9.9L8.6 9.1 12 6.6z" />
+      <path d="M12 6.6V3.3M15.4 9.1l3-1M14.1 13.2l1.9 2.6M9.9 13.2l-1.9 2.6M8.6 9.1l-3-1" />
+    </svg>
+  );
+}
+
 function ctaText(state: ChallengeState["state"], locked: boolean): string {
   if (locked) return state === "locked" ? "Próximamente" : "Ver";
   switch (state) {
@@ -66,6 +126,8 @@ function ctaText(state: ChallengeState["state"], locked: boolean): string {
       return "Seguir";
     case "completed":
       return "Revisar";
+    case "finished":
+      return "Ver";
     case "locked":
       return "Próximamente";
   }
@@ -101,9 +163,10 @@ export default function Sendero({ challenges, displayName, totalPoints, locked, 
   }, [challenges]);
 
   // Progreso del camino completo (todos los Desafíos, no sólo los desbloqueados):
-  // la barra refleja el viaje entero y crece a medida que completás etapas.
+  // la barra refleja el viaje entero y crece a medida que completás/terminás etapas.
+  // "finished" (ventana cerrada) también cuenta como tramo recorrido.
   const completedCount = useMemo(
-    () => path.filter((c) => c.state === "completed").length,
+    () => path.filter((c) => c.state === "completed" || c.state === "finished").length,
     [path],
   );
   const journeyTotal = path.length;
@@ -121,13 +184,13 @@ export default function Sendero({ challenges, displayName, totalPoints, locked, 
   }, [path, chest, locked]);
 
   // La ficha del jugador descansa sobre el nodo in_progress más avanzado; si no
-  // hay ninguno, sobre el último completado.
+  // hay ninguno, sobre el último ya recorrido (completado o terminado).
   const tokenKey = useMemo(() => {
     let inProgress: string | null = null;
     let lastDone: string | null = null;
     path.forEach((c) => {
       if (c.state === "in_progress") inProgress = c.key;
-      if (c.state === "completed") lastDone = c.key;
+      if (c.state === "completed" || c.state === "finished") lastDone = c.key;
     });
     return inProgress ?? lastDone;
   }, [path]);
@@ -258,18 +321,26 @@ function PathRow({
   token: { initial: string; rm: boolean } | null;
 }) {
   const isLocked = c.state === "locked";
+  const isFinished = c.state === "finished";
+  // Nodo de grupos bloqueado CON fecha de apertura futura → mostramos countdown
+  // vivo en vez de sólo "Próximamente". (Eliminatorias sin equipos: opensAt null.)
+  const hasCountdown = isLocked && c.stage === "group" && !!c.opensAt;
   const pct = c.total > 0 ? Math.min(100, Math.round((c.done / c.total) * 100)) : 0;
-  // El tramo está "recorrido" (dorado) si ya lo jugaste o lo estás jugando.
-  const reached = c.state === "completed" || c.state === "in_progress";
+  // El tramo está "recorrido" (dorado) si ya lo jugaste, lo estás jugando o terminó.
+  const reached = c.state === "completed" || c.state === "in_progress" || isFinished;
 
   const stateClass =
     c.state === "completed"
       ? styles.nodeCompleted
-      : c.state === "in_progress"
-        ? styles.nodeProgress
-        : c.state === "open"
-          ? styles.nodeOpen
-          : styles.nodeLocked;
+      : isFinished
+        ? styles.nodeFinished
+        : c.state === "in_progress"
+          ? styles.nodeProgress
+          : c.state === "open"
+            ? styles.nodeOpen
+            : // locked con countdown lleva un toque celeste para diferenciarlo del
+              // locked "sin fecha" (eliminatorias sin equipos).
+              `${styles.nodeLocked} ${hasCountdown ? styles.nodeLockedSoon : ""}`;
 
   // La cuerda baja desde La Largada (arriba). La última fila (La Final) corta en
   // el centro de su nodo para no asomar hacia la copa que va abajo.
@@ -277,7 +348,9 @@ function PathRow({
 
   const aria = isLocked
     ? `${c.title}. Bloqueado, ${c.subtitle}. Recompensa: ${c.reward.label}`
-    : `${c.title}. ${c.done} de ${c.total} jugados. Recompensa: ${c.reward.label}. ${ctaText(c.state, locked)}`;
+    : isFinished
+      ? `${c.title}, finalizado. ${c.done} de ${c.total} jugados. Recompensa: ${c.reward.label}. Ver resultados`
+      : `${c.title}. ${c.done} de ${c.total} jugados. Recompensa: ${c.reward.label}. ${ctaText(c.state, locked)}`;
 
   const inner = (
     <>
@@ -290,10 +363,13 @@ function PathRow({
           <span className={styles.nodeFace}>
             {c.state === "completed" ? (
               <Check size={28} strokeWidth={3} className={styles.checkIcon} aria-hidden="true" />
+            ) : isFinished ? (
+              // "Terminado/recorrido" (no "vos lo completaste"): bandera a cuadros.
+              <Flag size={24} strokeWidth={2.5} className={styles.checkIcon} aria-hidden="true" />
             ) : isLocked ? (
               <Lock size={22} className={styles.lockIcon} aria-hidden="true" />
             ) : (
-              <span className={styles.ballEmoji} aria-hidden="true">⚽</span>
+              <BallIcon size={28} className={styles.faceIcon} />
             )}
           </span>
           {token && (
@@ -321,7 +397,16 @@ function PathRow({
         <div className={styles.cardTop}>
           <span className={styles.short}>{c.short}</span>
           {isLocked ? (
-            <span className={styles.soon}>Próximamente</span>
+            // Nodo de grupos con fecha futura → countdown vivo; resto → "Próximamente".
+            hasCountdown && c.opensAt ? (
+              <NodeCountdown target={c.opensAt} />
+            ) : (
+              <span className={styles.soon}>Próximamente</span>
+            )
+          ) : isFinished ? (
+            <span className={styles.finishedPill}>
+              <Flag size={10} aria-hidden="true" /> Finalizado
+            </span>
           ) : (
             <span className={styles.count}>
               {c.done}/{c.total}
@@ -337,9 +422,15 @@ function PathRow({
             {rewardIcon(c.reward.tier)}
             {c.reward.label}
           </span>
+          {/* Finalizado: además del CTA, seguimos mostrando done/total. */}
+          {isFinished && (
+            <span className={styles.count}>
+              {c.done}/{c.total}
+            </span>
+          )}
           {!isLocked && (
             <span className={styles.cta}>
-              {ctaText(c.state, locked)}
+              {isFinished ? "Ver resultados" : ctaText(c.state, locked)}
               <ChevronRight size={14} aria-hidden="true" />
             </span>
           )}

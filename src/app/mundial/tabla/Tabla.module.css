@@ -265,8 +265,8 @@
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   overflow: hidden;
-  /* aire para que la "tu fila" fija no tape la última fila */
-  margin-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px) + 4.6rem);
+  /* clearance para la tab bar fija (la "tu fila" ya no vive abajo) */
+  margin-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px) + 1rem);
 }
 .row {
   display: flex;
@@ -329,18 +329,16 @@
   text-align: center;
   gap: 0.5rem;
   padding: 3rem 1.4rem;
-  margin-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px) + 4.6rem);
+  margin-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px) + 1rem);
 }
-.emptyEmoji {
+.emptyIcon {
   font-size: 2.4rem;
   filter: drop-shadow(0 0 14px rgba(233, 196, 106, 0.35));
 }
 
-/* ───────────────────────── "Tu fila" fija ───────────────────────── */
-.sticky {
-  position: sticky;
-  bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px) + 0.6rem);
-  z-index: 5;
+/* ───────────────────────── "Tu fila" (arriba) ───────────────────────── */
+.youTop {
+  margin-bottom: 1.2rem;
 }
 
 .youCard {
@@ -354,7 +352,7 @@
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--card-border);
   border-top: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
   text-decoration: none;
   color: var(--text-primary);
 }
@@ -367,8 +365,8 @@
   );
 }
 .youArrow {
+  flex-shrink: 0;
   color: var(--gold);
-  font-weight: 900;
 }
 .youRank {
   font-weight: 900;
@@ -394,6 +392,10 @@
 }
 .youCardOut:hover {
   border-color: var(--celeste);
+}
+.youCardOut:focus-visible {
+  outline: 2px solid var(--celeste);
+  outline-offset: 2px;
 }
 .youOutText {
   font-size: 0.86rem;

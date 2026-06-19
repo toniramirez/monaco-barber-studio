@@ -6,6 +6,7 @@ import { ChevronLeft } from "lucide-react";
 import shell from "./Shell.module.css";
 import TabBar from "./TabBar";
 import LeagueInviteCapture from "./LeagueInviteCapture";
+import ProdeAnnouncementsGate from "./ProdeAnnouncementsGate";
 
 export const metadata: Metadata = {
   title: "Prode Mundial 2026 | Monaco Barber Studio",
@@ -44,6 +45,11 @@ export default function MundialLayout({ children }: { children: React.ReactNode 
       </Suspense>
 
       {children}
+
+      {/* Anuncios de evento (ganador D1 / se abre D2). Suspense: no bloquea el shell. */}
+      <Suspense fallback={null}>
+        <ProdeAnnouncementsGate />
+      </Suspense>
 
       <TabBar />
     </div>

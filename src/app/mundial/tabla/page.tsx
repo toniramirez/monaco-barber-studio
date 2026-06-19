@@ -15,8 +15,9 @@ function hasStarted(startsAt: string): boolean {
 
 /**
  * Pantalla Tabla (/mundial/tabla): ranking general con podio (top-3), lista y
- * una fila fija "tu fila" anclada arriba de la tab bar. Server Component:
- * trae datos y los pasa al client, que se encarga del refresh en vivo.
+ * la card "tu fila" (arriba del podio). Server Component: trae datos y los pasa
+ * al client, que se encarga del refresh en vivo y del cambio de alcance
+ * (general, semana, ligas).
  */
 export default async function TablaPage() {
   const tournament = await getTournament();
@@ -38,7 +39,7 @@ export default async function TablaPage() {
   }
 
   const [leaderboard, myState, players] = await Promise.all([
-    getLeaderboard(tournament.id, null, 50),
+    getLeaderboard(tournament.id, null, 200),
     getMyState(),
     getParticipantCount(tournament.id),
   ]);

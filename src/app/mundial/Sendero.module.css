@@ -185,7 +185,6 @@
 
 .nodeFace { display: grid; place-items: center; width: 100%; height: 100%; border-radius: 50%; }
 .faceIcon { color: var(--text-primary); filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5)); }
-.ballEmoji { font-size: 1.75rem; line-height: 1; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.55)); }
 .checkIcon { color: #14110a; filter: drop-shadow(0 1px 2px rgba(255, 255, 255, 0.4)); }
 .lockIcon { color: var(--text-secondary); }
 
@@ -224,6 +223,16 @@
   box-shadow: 0 12px 30px rgba(233, 196, 106, 0.32), 0 0 0 1px rgba(233, 196, 106, 0.5);
 }
 
+/* ── Estado: finished (la ventana del desafío cerró) ──
+   Nodo dorado como completed, pero con bandera (no check): el desafío TERMINÓ,
+   no necesariamente "vos lo completaste". Tono apenas más profundo para leerlo
+   como "recorrido/cerrado" y diferenciarlo del completed por el jugador. */
+.nodeFinished {
+  border-color: var(--gold-deep);
+  background: linear-gradient(160deg, var(--gold) 0%, var(--gold-deep) 70%, #b88f2e);
+  box-shadow: 0 12px 30px rgba(212, 175, 55, 0.3), 0 0 0 1px rgba(212, 175, 55, 0.5);
+}
+
 /* ── Estado: locked ── */
 .nodeLocked {
   border-color: rgba(255, 255, 255, 0.06);
@@ -232,6 +241,15 @@
   background: #17191d;
   filter: grayscale(0.5);
 }
+/* Locked CON countdown (grupos con fecha): toque celeste sutil para diferenciarlo
+   del locked "sin fecha". Menos grayscale → se siente "casi disponible". */
+.nodeLockedSoon {
+  border-color: rgba(121, 192, 242, 0.4);
+  background: linear-gradient(180deg, rgba(121, 192, 242, 0.14), #17191d 80%);
+  filter: grayscale(0.2);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(121, 192, 242, 0.22);
+}
+.nodeLockedSoon .lockIcon { color: var(--celeste); }
 
 /* ── Ficha del jugador (moneda con inicial) sobre el nodo ── */
 .token {
@@ -315,6 +333,60 @@
   padding: 0.06rem 0.42rem;
   border-radius: var(--radius-pill);
 }
+
+/* Pill "Finalizado" — sutil, dorada tenue (el desafío terminó). */
+.finishedPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.22rem;
+  font-size: 0.56rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold);
+  background: var(--gold-soft);
+  border: 1px solid rgba(233, 196, 106, 0.28);
+  padding: 0.06rem 0.42rem;
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+}
+.finishedPill svg { flex-shrink: 0; }
+
+/* ── Countdown del nodo locked (grupos con fecha de apertura) ──
+   Acento celeste (lo diferencia del dorado de los desafíos jugables) y tipografía
+   tabular para que los dígitos no salten al cambiar de minuto. */
+.countdown {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  /* Estilo base = también el del placeholder "Próximamente" y "¡Ya se abre!"
+     (texto suelto sin sub-spans), sin depender de :has(). */
+  font-size: 0.56rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--celeste);
+}
+.countdownLabel {
+  font-size: 0.54rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+.countdownValue {
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  color: var(--celeste);
+  font-variant-numeric: tabular-nums;
+}
+.countdownReady { color: var(--celeste); }
 .cardTitle {
   font-size: 1.02rem;
   font-weight: 900;

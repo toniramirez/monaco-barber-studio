@@ -7,12 +7,13 @@ import Countdown from "./Countdown";
 import CountUp from "./CountUp";
 import HeroFX from "./HeroFX";
 import { getTournament, getParticipantCount } from "@/lib/prode/data";
+import { getNextProdeEvent } from "@/lib/prode/challenges";
 
 export const dynamic = "force-dynamic";
 
 /**
  * Inicio — SOLO el hero. Portada de juego (no landing scrolleable): título,
- * countdown al cierre, prueba social, CTA gigante y la tira de banderas viva.
+ * countdown al próximo hito, prueba social, CTA gigante y la tira de banderas viva.
  * Todo lo demás (cómo se juega, partido, premios, legal) vive en Jugar/Premios.
  */
 export default async function MundialPage() {
@@ -33,7 +34,19 @@ export default async function MundialPage() {
   }
 
   const players = await getParticipantCount(tournament.id);
-  const lockAt = tournament.predictions_lock_at ?? tournament.starts_at;
+  // Próximo hito real del prode (apertura de desafío / próximo partido / cierre).
+  // Reemplaza al viejo `predictions_lock_at`, que ya quedó en el pasado.
+  const nextEvent = await getNextProdeEvent(tournament.id, tournament);
+  // Si no hay hito por delante, caemos al cierre del torneo (o no mostramos el reloj).
+  const countdownTarget = nextEvent?.target ?? tournament.ends_at;
+  const countdownLabel = nextEvent?.label ?? "El prode cierra en";
+  // Mensaje al llegar a cero, acorde al tipo de hito.
+  const countdownZero =
+    nextEvent?.kind === "challenge_open"
+      ? "¡Ya se abre!"
+      : nextEvent?.kind === "match"
+        ? "¡A jugar!"
+        : "¡Cerró el prode!";
 
   return (
     <main className={`${shell.content} ${styles.homeMain}`}>
@@ -66,12 +79,18 @@ export default async function MundialPage() {
             <span className={styles.hl}>Cortes gratis</span> y la camiseta en juego.
           </p>
 
-          <div className={styles.countdownWrap}>
-            <span className={styles.countdownLabel}>
-              <Timer size={13} aria-hidden="true" /> Falta para que cierre el prode
-            </span>
-            <Countdown target={lockAt} />
-          </div>
+          {countdownTarget && (
+            <div className={styles.countdownWrap}>
+              <span className={styles.countdownLabel}>
+                <Timer size={13} aria-hidden="true" /> {countdownLabel}
+              </span>
+              <Countdown
+                target={countdownTarget}
+                ariaLabel={`Cuenta regresiva: ${countdownLabel}`}
+                zero={<div className={styles.countdownZero}>{countdownZero}</div>}
+              />
+            </div>
+          )}
 
           <div className={styles.heroMeta}>
             <span className={`${shell.pill} ${styles.metaPill}`}>

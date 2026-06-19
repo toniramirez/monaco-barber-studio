@@ -101,10 +101,11 @@ export type ChallengeRewardTier = "month" | "jersey" | "roulette" | "special";
 
 /** Estado derivado de un desafío para el jugador actual. */
 export type ChallengeStateKind =
-  | "locked" // eliminatorias sin equipos todavía / "Próximamente"
+  | "locked" // todavía no se abre (countdown) / eliminatorias sin equipos → "Próximamente"
   | "open" // jugable, sin empezar (0 jugados)
   | "in_progress" // jugable, parcial
-  | "completed"; // todos jugados
+  | "completed" // jugaste todo lo que estaba abierto
+  | "finished"; // la ventana cerró (todos los partidos arrancaron) → el desafío terminó
 
 /** Definición estática de un desafío (config en challenges.ts). */
 export type ChallengeDef = {
@@ -130,7 +131,50 @@ export type ChallengeState = ChallengeDef & {
   /** Cuántas ya jugó el participante. */
   done: number;
   state: ChallengeStateKind;
+  /** ISO. Sólo en estado "locked" de un Desafío de grupos: cuándo se abre (countdown). */
+  opensAt?: string | null;
+  /** ISO. Último kickoff de la ventana del desafío (cuándo cierra del todo). */
+  endsAt?: string | null;
 };
+
+/** Fase de un Desafío de fase de grupos en la línea de tiempo del torneo. */
+export type ChallengePhase =
+  | "upcoming" // todavía no se abre (ahora < opensAt)
+  | "active" // jugándose ahora (abierto, con partidos sin arrancar)
+  | "finished"; // ya terminó (todos los partidos arrancaron)
+
+/**
+ * Estado "calendario" de un Desafío de grupos (D1/D2/D3), independiente del
+ * jugador. Lo consumen los anuncios (popup D2 / ganador D1), la home (countdown)
+ * y la Tabla (chips por desafío). Se deriva de prode_matches por matchday.
+ */
+export type GroupChallengeTimeline = {
+  key: string;
+  slug: string;
+  title: string;
+  short: string;
+  subtitle: string;
+  matchday: number;
+  phase: ChallengePhase;
+  /** ISO. Cuándo se abre el desafío (= último kickoff del matchday anterior). null para D1. */
+  opensAt: string | null;
+  /** ISO. Primer kickoff de su ventana. */
+  firstKickoff: string | null;
+  /** ISO. Último kickoff de su ventana (cuándo cierra). */
+  lastKickoff: string | null;
+  /** Partidos del desafío (con equipos). */
+  matches: number;
+};
+
+/** Próximo hito del prode para el countdown de la home. */
+export type ProdeNextEvent = {
+  /** ISO del momento al que apunta la cuenta regresiva. */
+  target: string;
+  kind: "challenge_open" | "match" | "tournament_end";
+  /** Texto antes del marcador (ej: "El Desafío 3 se abre en"). */
+  label: string;
+};
+
 
 /** Un partido dentro del play de un desafío, con la jugada previa del jugador. */
 export type ChallengeMatch = {

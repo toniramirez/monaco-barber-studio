@@ -14,7 +14,9 @@ import {
 
 // Lecturas server-side. Usan el admin client (service-role) — nunca se exponen al cliente.
 
-export async function getTournament(): Promise<Tournament | null> {
+// cache() dedupea las múltiples lecturas del torneo dentro de un mismo request
+// (layout + page + gate de anuncios lo piden por separado).
+export const getTournament = cache(async (): Promise<Tournament | null> => {
   const admin = createAdminClient();
   const { data } = await admin
     .from("prode_tournament")
@@ -24,7 +26,7 @@ export async function getTournament(): Promise<Tournament | null> {
     .limit(1)
     .maybeSingle();
   return (data as Tournament) ?? null;
-}
+});
 
 export async function getTeams(tournamentId: string): Promise<ProdeTeam[]> {
   const admin = createAdminClient();

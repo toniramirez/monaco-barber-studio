@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Crown, RefreshCw, Ticket, Users, ChevronRight, Trophy } from "lucide-react";
 import Link from "next/link";
@@ -51,41 +51,55 @@ export default function TablaClient({
     scope === GENERAL || scope === WEEK ? null : myLeagues.find((l) => l.id === scope) ?? null;
 
   // Trae la tabla del alcance pedido. La "semana" usa otra RPC (puntos de esa semana).
+  // Limit alto para ubicar "tu fila" aunque esté afuera del top visible.
   const fetchScope = useCallback(
     (s: string): Promise<LeaderboardRow[]> => {
-      if (s === WEEK && currentWeek) return refreshWeeklyLeaderboard(currentWeek.start, currentWeek.end, 50);
-      return refreshLeaderboard(s === GENERAL ? null : s, 50);
+      if (s === WEEK && currentWeek)
+        return refreshWeeklyLeaderboard(currentWeek.start, currentWeek.end, 200);
+      return refreshLeaderboard(s === GENERAL ? null : s, 200);
     },
     [currentWeek],
   );
 
-  // Cambiar de alcance: actualizamos el estado y traemos esa tabla en el mismo
-  // handler (imperativo, no en un effect). El "general" inicial ya viene del server.
+  // Carga con guard "última petición gana": un token monotónico descarta respuestas
+  // que ya no corresponden al scope vigente (los server actions resuelven fuera de
+  // orden → si no, la tabla mostraría datos de un scope viejo bajo el chip nuevo).
+  const reqId = useRef(0);
+  const load = useCallback(
+    (target: string, withPending = false): Promise<void> => {
+      const id = ++reqId.current;
+      if (withPending) setPending(true);
+      return fetchScope(target)
+        .then((rows) => {
+          if (reqId.current !== id) return;
+          setLeaderboard(rows);
+        })
+        .catch(() => {})
+        .finally(() => {
+          if (withPending && reqId.current === id) setPending(false);
+        });
+    },
+    [fetchScope],
+  );
+
+  // Cambiar de alcance: el "general" inicial ya viene del server; el resto se trae acá.
   function selectScope(next: string) {
     if (next === scope) return;
     setScope(next);
-    setPending(true);
-    fetchScope(next)
-      .then(setLeaderboard)
-      .catch(() => {})
-      .finally(() => setPending(false));
+    load(next, true);
   }
 
-  // Auto-refresh cada 30s del alcance vigente (la acción devuelve el array directo).
+  // Auto-refresh cada 30s del alcance vigente.
   useEffect(() => {
     const i = setInterval(() => {
-      fetchScope(scope).then(setLeaderboard).catch(() => {});
+      load(scope);
     }, 30000);
     return () => clearInterval(i);
-  }, [scope, fetchScope]);
+  }, [scope, load]);
 
   function onRefresh() {
     if (pending) return;
-    setPending(true);
-    fetchScope(scope)
-      .then(setLeaderboard)
-      .catch(() => {})
-      .finally(() => setPending(false));
+    load(scope, true);
   }
 
   const podium = leaderboard.slice(0, 3);
@@ -97,9 +111,18 @@ export default function TablaClient({
     .map((idx) => ({ idx, row: podium[idx] }))
     .filter((s): s is { idx: 0 | 1 | 2; row: LeaderboardRow } => !!s.row);
 
-  const myRow = registered && myParticipantId
-    ? leaderboard.find((r) => r.participant_id === myParticipantId) ?? null
-    : null;
+  const myRow =
+    registered && myParticipantId
+      ? leaderboard.find((r) => r.participant_id === myParticipantId) ?? null
+      : null;
+
+  const titleEm = scope === WEEK ? "de la semana" : activeLeague ? activeLeague.name : "general";
+  const subtitle =
+    scope === WEEK
+      ? "El ranking de esta semana. El 1º se lleva un corte gratis."
+      : activeLeague
+        ? "Tu liga privada. El ranking acá es solo entre tus invitados."
+        : "Sumá fichas y escalá. Al final del Mundial, el 1º, 2º y 3º se llevan los premios.";
 
   const fade = rm
     ? { initial: false as const, animate: { opacity: 1 } }
@@ -115,20 +138,11 @@ export default function TablaClient({
       <header className={styles.header}>
         <div className={styles.titleRow}>
           <h1 className={`${shell.sectionTitle} ${styles.title}`}>
-            Tabla{" "}
-            <span className={shell.em}>
-              {scope === WEEK ? "de la semana" : activeLeague ? activeLeague.name : "general"}
-            </span>
+            Tabla <span className={shell.em}>{titleEm}</span>
           </h1>
           <span className={shell.liveDot} aria-hidden="true" />
         </div>
-        <p className={shell.sectionSub}>
-          {scope === WEEK
-            ? "El ranking de esta semana. El 1º se lleva un corte gratis."
-            : activeLeague
-              ? "Tu liga privada. El ranking acá es solo entre tus invitados."
-              : "Sumá fichas y escalá. El 1º de la semana se lleva un corte gratis."}
-        </p>
+        <p className={shell.sectionSub}>{subtitle}</p>
 
         {/* Selector General / Semana / Mi(s) liga(s). */}
         {hasScopes && (
@@ -191,9 +205,37 @@ export default function TablaClient({
         </div>
       </header>
 
+      {/* ── Tu fila (arriba, antes del podio) ── */}
+      <div className={styles.youTop}>
+        {!registered ? (
+          <Link href="/mundial/jugar" className={shell.btnPrimary}>
+            <Ticket size={18} aria-hidden="true" /> Sumate para competir
+          </Link>
+        ) : myRow ? (
+          <div className={`${styles.youCard} ${styles.youCardActive}`} role="status">
+            <ChevronRight className={styles.youArrow} size={16} aria-hidden="true" />
+            <span className={styles.youRank}>#{myRow.rank}</span>
+            <span className={styles.youName}>
+              {myRow.display_name} <span className={styles.youTag}>(vos)</span>
+            </span>
+            <span className={styles.youPts}>
+              {myRow.total_points}
+              <span className={styles.ptsLabel}>pts</span>
+            </span>
+          </div>
+        ) : (
+          <Link href="/mundial/jugar" className={`${styles.youCard} ${styles.youCardOut}`}>
+            <span className={styles.youOutText}>
+              Vos · <strong>{myTotalPoints} pts</strong> · seguí sumando para entrar al ranking
+            </span>
+            <ChevronRight size={16} aria-hidden="true" />
+          </Link>
+        )}
+      </div>
+
       {leaderboard.length === 0 ? (
         <div className={styles.empty}>
-          <div className={styles.emptyEmoji} aria-hidden="true">
+          <div className={styles.emptyIcon} aria-hidden="true">
             <Trophy size={40} />
           </div>
           <p className={shell.sectionSub}>Sé el primero en sumar puntos.</p>
@@ -201,11 +243,7 @@ export default function TablaClient({
       ) : (
         <>
           {/* ── Podio (top-3) ── */}
-          <motion.section
-            className={styles.podium}
-            aria-label="Podio: top 3"
-            {...fade}
-          >
+          <motion.section className={styles.podium} aria-label="Podio: top 3" {...fade}>
             {podiumSlots.map(({ idx, row }) => {
               const place = idx + 1; // 1, 2 o 3
               const isMe = row.participant_id === myParticipantId;
@@ -217,9 +255,7 @@ export default function TablaClient({
                   className={`${styles.slot} ${place === 1 ? styles.slotFirst : ""}`}
                 >
                   <div className={`${styles.avatar} ${placeClass} ${isMe ? styles.avatarMe : ""}`}>
-                    {place === 1 && (
-                      <Crown className={styles.crown} size={22} aria-hidden="true" />
-                    )}
+                    {place === 1 && <Crown className={styles.crown} size={22} aria-hidden="true" />}
                     <span className={styles.avatarInitial}>{initialOf(row.display_name)}</span>
                     <span className={styles.medal} aria-hidden="true">
                       {place}
@@ -267,36 +303,6 @@ export default function TablaClient({
           )}
         </>
       )}
-
-      {/* ── Tu fila (fija arriba de la tab bar) ── */}
-      <div className={styles.sticky}>
-        {!registered ? (
-          <Link href="/mundial/jugar" className={shell.btnPrimary}>
-            <Ticket size={18} aria-hidden="true" /> Sumate para competir
-          </Link>
-        ) : myRow ? (
-          <div className={`${styles.youCard} ${styles.youCardActive}`} role="status">
-            <span className={styles.youArrow} aria-hidden="true">
-              ▸
-            </span>
-            <span className={styles.youRank}>#{myRow.rank}</span>
-            <span className={styles.youName}>
-              {myRow.display_name} <span className={styles.youTag}>(vos)</span>
-            </span>
-            <span className={styles.youPts}>
-              {myRow.total_points}
-              <span className={styles.ptsLabel}>pts</span>
-            </span>
-          </div>
-        ) : (
-          <Link href="/mundial/jugar" className={`${styles.youCard} ${styles.youCardOut}`}>
-            <span className={styles.youOutText}>
-              Vos · <strong>{myTotalPoints} pts</strong> · seguí sumando para entrar al ranking
-            </span>
-            <ChevronRight size={16} aria-hidden="true" />
-          </Link>
-        )}
-      </div>
     </main>
   );
 }

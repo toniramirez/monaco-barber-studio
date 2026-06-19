@@ -107,7 +107,18 @@
   color: var(--text-secondary);
 }
 .countdownLabel svg {
+  flex-shrink: 0;
   color: var(--celeste);
+}
+
+/* Mensaje al llegar el reloj a cero (ej. "¡Ya se abre!"). Hereda el brillo del
+   marcador para que la transición desde el countdown no quede pobre. */
+.countdownZero {
+  font-size: clamp(1.1rem, 5.5vw, 1.4rem);
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  color: var(--gold);
+  text-shadow: 0 0 20px rgba(233, 196, 106, 0.5);
 }
 
 /* Meta: jugadores + premio */

@@ -26,7 +26,6 @@ import {
 import shell from "../Shell.module.css";
 import styles from "./Premios.module.css";
 import Countdown from "../Countdown";
-import { RouletteIcon } from "../RouletteIcon";
 import {
   couponPhase,
   weekdayPhraseShort,
@@ -108,8 +107,6 @@ export default function PremiosClient({
       />
 
       <JerseyHero />
-
-      <ChallengePrizes />
 
       <GrandPrize />
 
@@ -406,112 +403,14 @@ function JerseyHero() {
       </button>
 
       <p className={styles.jerseyCopy}>
-        La camiseta de la selección. <strong>Se la lleva quien llega lejos</strong>: de
-        16vos para arriba y todo el podio del Gran Premio.
+        La camiseta de la selección. <strong>Se la lleva el podio del Gran Premio</strong>:
+        el 1º, 2º y 3º de la tabla general al final del Mundial.
       </p>
     </Reveal>
   );
 }
 
-/* ─────────────────────────── 3 · Premios por desafío ─────────────────────────── */
-type Challenge = {
-  phase: string;
-  reward: React.ReactNode;
-  ico: React.ReactNode;
-  note: string;
-  thumb?: boolean;
-  teaser?: boolean;
-};
-
-const CHALLENGES: Challenge[] = [
-  {
-    phase: "D1 · D2 · D3",
-    ico: <Trophy size={20} aria-hidden="true" />,
-    reward: <>1 mes de cortes gratis</>,
-    note: "Salís 1º de la fecha → es tuyo.",
-  },
-  {
-    phase: "16vos · 8vos",
-    ico: <Shirt size={20} aria-hidden="true" />,
-    reward: <>1 mes + camiseta</>,
-    note: "Ganás el desafío y te llevás la de la selección.",
-    thumb: true,
-  },
-  {
-    phase: "4tos · Semis · 3er · Final",
-    ico: <RouletteIcon size={20} />,
-    reward: <>Ruleta por puntos</>,
-    note: "Se activa en fase final.",
-    teaser: true,
-  },
-];
-
-function ChallengePrizes() {
-  const rm = useReducedMotion();
-  return (
-    <Reveal className={styles.section} aria-labelledby="challenge-title">
-      <div className={styles.challengeHead}>
-        <span className={shell.eyebrow}>
-          <Trophy size={13} /> Por desafío
-        </span>
-        <h2
-          id="challenge-title"
-          className={shell.sectionTitle}
-          style={{ marginTop: "0.6rem" }}
-        >
-          Premio en cada ronda
-        </h2>
-      </div>
-
-      <motion.div
-        className={styles.challengeList}
-        variants={
-          rm ? undefined : { show: { transition: { staggerChildren: 0.08 } } }
-        }
-        initial={false}
-        whileInView={rm ? undefined : "show"}
-        viewport={{ once: true, amount: 0.2 }}
-      >
-        {CHALLENGES.map((c) => (
-          <motion.div
-            key={c.phase}
-            className={`${shell.card} ${styles.challenge} ${c.teaser ? styles.challengeTeaser : ""}`}
-            variants={rm ? undefined : fadeUp}
-          >
-            {c.thumb ? (
-              <span className={styles.challengeThumb} aria-hidden="true">
-                <Image
-                  src="/camiseta_frente.png"
-                  alt=""
-                  width={46}
-                  height={56}
-                  className={styles.challengeThumbImg}
-                  loading="lazy"
-                  sizes="46px"
-                />
-              </span>
-            ) : (
-              <span className={styles.challengeIco} aria-hidden="true">
-                {c.ico}
-              </span>
-            )}
-
-            <div className={styles.challengeBody}>
-              <span className={styles.challengePhase}>{c.phase}</span>
-              <p className={styles.challengeName}>
-                <span className={styles.reward}>{c.reward}</span>
-                {c.teaser && <span className={styles.teaserChip}>Pronto</span>}
-              </p>
-              <p className={styles.challengeText}>{c.note}</p>
-            </div>
-          </motion.div>
-        ))}
-      </motion.div>
-    </Reveal>
-  );
-}
-
-/* ─────────────────────────── 4 · Gran Premio (podio) ─────────────────────────── */
+/* ─────────────────────────── 3 · Gran Premio (podio) ─────────────────────────── */
 type Podium = {
   rank: number;
   medalCls: string;
@@ -634,7 +533,7 @@ function GrandPrize() {
   );
 }
 
-/* ─────────────────────────── 5 · Las membresías (premios reales) ─────────────────────────── */
+/* ─────────────────────────── 4 · Las membresías (premios reales) ─────────────────────────── */
 type Membership = {
   src: string;
   alt: string;

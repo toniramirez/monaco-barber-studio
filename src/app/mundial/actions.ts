@@ -10,7 +10,12 @@ import {
   getPendingLeague,
   clearPendingLeague,
 } from "@/lib/prode/session";
-import { getTournament, getParticipantSummary, getLeaderboard, getWeeklyLeaderboard } from "@/lib/prode/data";
+import {
+  getTournament,
+  getParticipantSummary,
+  getLeaderboard,
+  getWeeklyLeaderboard,
+} from "@/lib/prode/data";
 
 export type Result<T = unknown> = { ok: true; data: T } | { ok: false; error: string };
 
